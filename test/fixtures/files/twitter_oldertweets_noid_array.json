@@ -1,0 +1,90 @@
+[
+    {
+	"coordinates": null,
+	"favorited": false,
+	"truncated": false,
+	"created_at": "Wed Aug 29 17:12:58 +0000 2012",
+	"id_str": "240859602684612608",
+	"in_reply_to_user_id_str": null,
+	"contributors": null,
+	"full_text": "Introducing the Twitter Certified Products Program: https://t.co/MjJ8xAnT",
+	"retweet_count": 121,
+	"in_reply_to_status_id_str": null,
+	"id": 240859513384612608,
+	"user": {
+	    "id": 420420420
+	}
+    },
+    {
+	"coordinates": null,
+        "favorited": false,
+	"user": {
+	    "id": 420420420
+	},
+	"truncated": false,
+	"created_at": "Wed Aug 29 17:12:58 +0000 2012",
+	"id_str": "240859602684612608",
+	"in_reply_to_user_id_str": null,
+	"contributors": null,
+	"full_text": "Introducing the Twitter Certified Products Program: https://t.co/MjJ8xAnT",
+	"retweet_count": 121,
+	"in_reply_to_status_id_str": null,
+	"id": 240859602684612108,
+	"geo": null,
+	"retweeted": false,
+	"possibly_sensitive": false,
+	"in_reply_to_user_id": null,
+	"place": null,
+	"in_reply_to_screen_name": null,
+	"source": "<a href=\"//sites.google.com/site/yorufukurou/\" rel=\"nofollow\">YoruFukurou</a>",
+	"in_reply_to_status_id": null
+    },
+    {
+	"coordinates": null,
+	"user": {
+	    "id": 420420420
+	},
+	"favorited": false,
+	"truncated": false,
+	"created_at": "Sat Aug 25 19:26:51 +0000 2012",
+	"id_str": "239413543487818484",
+	"in_reply_to_user_id_str": null,
+	"contributors": null,
+	"full_text": "noid We are working to resolve issues with application management & logging in to the dev portal: https://t.co/p5bOzH0kS",
+	"retweet_count": 105,
+	"in_reply_to_status_id_str": null,
+	"id": 239451543487818484,
+	"geo": null,
+	"retweeted": true,
+	"possibly_sensitive": false,
+	"in_reply_to_user_id": null,
+	"place": null,
+	"in_reply_to_screen_name": null,
+	"source": "source x",
+	"in_reply_to_status_id": null
+    },
+    {
+	"coordinates": null,
+	"user": {
+	    "id": 420420420
+	},
+	"favorited": false,
+	"truncated": false,
+	"created_at": "Sat Aug 25 17:26:51 +0000 2012",
+	"id_str": "239413543487818484",
+	"in_reply_to_user_id_str": null,
+	"contributors": null,
+	"full_text": "noid We are working to resolve issues with application management & logging in to the dev portal: https://t.co/p5bOzH0kS",
+	"retweet_count": 105,
+	"in_reply_to_status_id_str": null,
+	"id": 239413592287818484,
+	"geo": null,
+	"retweeted": true,
+	"possibly_sensitive": false,
+	"in_reply_to_user_id": null,
+	"place": null,
+	"in_reply_to_screen_name": null,
+	"source": "source x",
+	"in_reply_to_status_id": null
+    }
+]

@@ -1,0 +1,13 @@
+%h1
+  Schedule Repeated Tweeting
+= form_tag '/schedule', method: :post do
+  = text_field_tag :uri, '', placeholder: 'URI to tweet about'
+  #message-list
+  #add-message
+    Add a message
+  = submit_tag 'Schedule!', id: 'schedule-submit'
+    
+%script#message-template{type:'text/template'}
+  %input{name: 'twitter_schedule[messages][]', id: 'message-text', type: 'text', value: '<%- message %>'.html_safe}
+  .x-box
+    X

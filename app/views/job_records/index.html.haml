@@ -1,0 +1,10 @@
+%table.table.table-striped.table-bordered
+  %tr
+    %th Created At
+    %th Status
+  - @job_records.each do |j|
+    %tr
+      %td
+        = j.created_at
+      %td
+        = j.status

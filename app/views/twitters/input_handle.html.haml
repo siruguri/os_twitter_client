@@ -1,0 +1,38 @@
+- if @notice
+  .paragraph.bottomborder
+    = @notice
+    
+.paragraph.bottomborder
+  - if current_user
+    - if @user_has_profile.present?
+      = form_tag twitter_twitter_call_path do
+        = hidden_field_tag :your, 1
+        = text_field_tag :handle, @user_handle, autofocus: true, id: 'twitter-handle'
+        = submit_tag "Get your bio", class: 'btn btn-default'
+        = submit_tag "Get your older tweets", class: 'btn btn-default'
+        = submit_tag "Populate your followers", class: 'btn btn-default', id: 'populate-followers'
+        = submit_tag "Refresh whom you follow", class: 'btn btn-default', id: 'refresh-friends'
+        = submit_tag "Refresh your feed", class: 'btn btn-default', id: 'refresh-feed'
+    - else
+      You haven't registered your Twitter handle yet.
+      = link_to "Authorize with Twitter", twitter_authorize_twitter_url
+      to do so.
+      
+.paragraph
+  = form_tag twitter_twitter_call_path do
+    = text_field_tag :handle, '', autofocus: true, id: 'twitter-handle'
+    = submit_tag "Get bio", class: 'btn btn-default'
+    = submit_tag "Get older tweets", class: 'btn btn-default'
+    = submit_tag "Populate followers", class: 'btn btn-default', id: 'populate-followers'
+
+.paragraph
+  = link_to "See index", twitter_index_url
+.topborder
+  %h3
+    To-Do List of Tasks
+  %ol
+    = form_tag twitter_batch_call_path do
+      - if @uncrawled_profiles != 0
+        %li 
+          = "#{@no_tweet_profiles} profiles do not have tweets"
+          = submit_tag "Process them!", name: 'no-tweet-profiles', class: 'btn btn-default', id: 'no-tweet-profiles'

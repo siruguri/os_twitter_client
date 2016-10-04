@@ -1,0 +1,21 @@
+#add-message {
+  cursor: pointer;
+  color: blue;
+}
+.message {
+  position: relative;
+  width: 25%;
+  padding: 5px;
+  background-color: wheat;
+  margin-bottom: 10px;
+  .x-box {
+    position: absolute;
+    cursor: pointer;
+    color: red;
+    right: 5px;
+    top: 5px;
+  }
+}
+
+		
+		

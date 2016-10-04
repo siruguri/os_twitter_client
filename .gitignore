@@ -1,0 +1,42 @@
+/.bundle
+# Ignore all logfiles and tempfiles.
+/log/*
+!/log/.keep
+/tmp
+/db/*sqlite3
+/log/
+
+*.rbc
+capybara-*.html
+.rspec
+
+/public/system
+/spec/tmp
+**.orig
+rerun.txt
+pickle-email-*.html
+
+config/initializers/secret_token.rb
+
+## Environment normalisation:
+/vendor/bundle
+
+# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
+.rvmrc
+
+# if using bower-rails ignore default bower_components path bower.json files
+/vendor/assets/bower_components
+*.bowerrc
+bower.json
+
+*.dmp
+.env
+*.rdb
+scripts_local/
+/simple_coverage/
+/coverage/
+.DS_Store
+newrelic.yml
+public/
+*sqlite3
+*sqlite3-journal

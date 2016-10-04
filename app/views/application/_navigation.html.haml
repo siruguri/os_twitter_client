@@ -1,0 +1,35 @@
+%nav.navbar.navbar-default{role: "navigation"}
+  .container
+    .navbar-header
+      %button.navbar-toggle{type: "button", "data-toggle" => "collapse", "data-target" => "#bs-example-navbar-collapse-1"}
+        %span.sr-only Toggle navigation
+        %span.icon-bar
+        %span.icon-bar
+        %span.icon-bar
+      %a.navbar-brand{href: "/"} 
+        = t(:site_brand)
+    .collapse.navbar-collapse{id: "bs-example-navbar-collapse-1"}
+      %ul.nav.navbar-nav.navbar-right
+        %li
+          = link_to "Index page", twitter_index_url
+        %li
+          = link_to "Enter handle", twitter_input_handle_url
+        - if current_user
+          %li.dropdown 
+            %a.dropdown-toggle{href: "#", "data-toggle" => "dropdown"} 
+              #{current_user.email[0..12]}...
+            %b.caret
+            %ul.dropdown-menu
+              %li
+                - if current_user.twitter_profile
+                  = link_to 'Profile', twitter_profile_analysis_path
+              %li
+                = link_to "Feed", twitter_feed_path
+              %li
+                = link_to "Sign Out", destroy_user_session_path, method: :delete
+        - else
+          %li
+            = link_to 'Sign In', new_user_session_path
+
+
+

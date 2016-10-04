@@ -1,0 +1,48 @@
+- if @feed_list.size == 0 || @time_to_wait >= 0
+  .paragraph
+    .btn.feed-refresh.action{'data-action-id' => 1}
+      Refresh Feed
+- else
+  .time_data{'data-hrs' => @hrs, 'data-mins' => @mins, 'data-secs' => @secs}
+  .countdown
+    .hrs
+    .mins
+    .secs
+- if @feed_list.size > 0
+  %ol.tweet-list
+    - @feed_list.each do |tweet, handle|
+      %ul.item
+        .line-one
+          .handle
+            = link_to tweet.user.handle, 'https://twitter.com/' + tweet.user.handle
+          .time
+            = better_time(tweet)
+          .retweet-button.action{'data-action-id' => 2, 'data-action-data' => "#{tweet.tweet_id}"}
+            Retweet
+        - if tweet.is_retweeted
+          - rt_handle = (tweet.tweet_details['retweeted_status']['user']['screen_name'] || tweet.tweet_details['entities']['user_mentions'][0]['screen_name'])
+          .line-one
+            .handle
+              = "\u21b3"
+              = link_to rt_handle , 'https://twitter.com/' + rt_handle
+            .time
+              = better_time(tweet)
+          .mesg
+            = better_urls(tweet.tweet_details['retweeted_status'])
+          - if tweet.tweet_details['retweeted_status']['entities']['media']&.size.try(:>, 0)
+            .tweet-media
+              %img{src: tweet.tweet_details['entities']['media'][0]['media_url_https']}
+        - elsif tweet.tweet_details['quoted_status']
+          .mesg
+            = tweet_text(tweet)
+          .quoted_box
+            = render partial: 'quote_tweet', locals: {quoted_tweet: tweet.tweet_details['quoted_status']}
+        - else
+          .mesg
+            = better_urls(tweet)
+          - if tweet.has_media?
+            .tweet-media
+              %img{src: tweet.tweet_details['entities']['media'][0]['media_url_https']}
+
+= will_paginate @feed_list, page_links: false
+

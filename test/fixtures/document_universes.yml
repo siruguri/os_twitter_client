@@ -1,0 +1,2 @@
+universe_1:
+  universe: <%= TextStats::DocumentUniverse.new.add(TextStats::DocumentModel.new('hello world bear cheetah document')).to_yaml.inspect %>

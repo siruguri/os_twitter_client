@@ -1,0 +1,95 @@
+DEFAULTS: &DEFAULTS
+  protected: false
+  member_since: <%= DateTime.now - 3.months %>
+  
+twitter_profile_1:
+  <<: *DEFAULTS
+  handle: twitter_handle
+  location: Bee bee gun
+  last_tweet_time: <%= DateTime.strptime("Tue Nov 03 12:17:04 +0000 2015", '%a %b %d %H:%M:%S %z %Y') %>
+  last_tweet: hello there 1
+  twitter_id: 1
+  user: user_2
+  word_cloud: <%= ({}).to_yaml.inspect %>
+
+twitter_profile_user_with_profile:
+  <<: *DEFAULTS
+  handle: user_with_profile_handle
+  location: profilesville
+  last_tweet_time: <%= DateTime.strptime("Tue Jun 03 12:17:04 +0000 2016", '%a %b %d %H:%M:%S %z %Y') %>
+  last_tweet: hello there user with profile
+  twitter_id: 10
+  user: user_with_profile
+
+nota_twitter_profile:
+  <<: *DEFAULTS
+  handle: nota_twitter_handle
+  location: Bee bee gun
+  last_tweet_time: <%= DateTime.strptime("Mon Sep 03 12:17:04 +0000 2015", '%a %b %d %H:%M:%S %z %Y') %>
+  last_tweet: hello there 2
+
+bobcostas:
+  <<: *DEFAULTS
+  handle: bobcostas
+  location: Bee bee gun
+  last_tweet_time: <%= DateTime.strptime("Thu Jan 03 12:17:04 +0000 2015", '%a %b %d %H:%M:%S %z %Y') %>
+  twitter_id: 2
+  last_tweet: hello there 3
+  
+alimawali:
+  <<: *DEFAULTS
+  handle: alimawali
+  location: Bee bee gun
+  last_tweet_time: <%= DateTime.strptime("Tue Mar 03 12:17:04 +0000 2015", '%a %b %d %H:%M:%S %z %Y')%>
+  last_tweet: hello there 4
+  twitter_id: 3
+  
+only_id_1:
+  <<: *DEFAULTS
+  twitter_id: 4
+
+only_id_2:
+  <<: *DEFAULTS
+  twitter_id: 10241024
+
+no_id_profile:
+  <<: *DEFAULTS
+  handle: no_id_here
+
+existing_followers:
+  <<: *DEFAULTS
+  handle: existing_followers_profile
+  twitter_id: 66
+
+leader_profile:
+  <<: *DEFAULTS
+  handle: leader_profile_handle
+  twitter_id: 5
+  last_tweet_time: <%= DateTime.now - 50.days %>
+  
+someother_leader_profile:
+  <<: *DEFAULTS
+  handle: someother_leader_profile_handle
+  twitter_id: 55
+  last_tweet_time: <%= DateTime.now - 500.days %>
+
+recent_leader_profile:
+  <<: *DEFAULTS
+  handle: recent_leader_profile_handle
+  twitter_id: 66
+  last_tweet_time: <%= DateTime.now - 2.hours %>
+
+just_follower_1:
+  <<: *DEFAULTS
+  handle: just_follower_1
+  twitter_id: 807
+  last_tweet_time: <%= DateTime.strptime('2016-09-23 10:00', "%Y-%m-%d %H:%M") %>
+
+tp_assign_to_2:
+  <<: *DEFAULTS
+  handle: assign_to_2_handle
+  last_tweet_time: <%= DateTime.strptime("Tue Nov 03 12:17:04 +0000 2015", '%a %b %d %H:%M:%S %z %Y') %>
+  last_tweet: hello there 1 this will be assigned to user_2 in test
+  twitter_id: 123998
+  word_cloud: <%= ({}).to_yaml.inspect %>
+

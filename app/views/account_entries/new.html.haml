@@ -1,0 +1,12 @@
+.paragraph
+  Total account entries created:
+  = AccountEntry.count
+
+.paragraph
+  = link_to 'Tag an entry', tag_account_entries_path
+  
+= form_tag('/account_entry/create') do
+  .form-element-row
+    = file_field_tag :accounts_list
+  .form-element-row
+    = submit_tag "Upload"  

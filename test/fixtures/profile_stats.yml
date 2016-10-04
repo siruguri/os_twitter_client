@@ -1,0 +1,11 @@
+ps_1:
+  twitter_profile: twitter_profile_1
+  stats_hash_v2: <%= {a: 1, total_tweets: 4212, retweet_aggregate: 455, retweeted_avg: 2.4121, retweeted_mesgs: 5}.to_json %>
+  most_recent_tweet_at: <%= DateTime.strptime('2016-05-30 12:00:00', '%Y-%m-%d %H:%M:%S ') %>
+  most_old_tweet_at: <%= DateTime.strptime('2016-05-01 12:00:00', '%Y-%m-%d %H:%M:%S ') %>
+ps_2:
+  twitter_profile: bobcostas
+  stats_hash_v2: <%= {a: 1, total_tweets: 4213, retweet_aggregate: 192, retweeted_avg: 4.8819, retweeted_mesgs: 3}.to_json %>
+ps_3:
+  twitter_profile: alimawali
+  stats_hash_v2: <%= {a: 1, total_tweets: 4214, retweet_aggregate: 112, retweeted_avg: 16.1412, retweeted_mesgs: 42}.to_json %>

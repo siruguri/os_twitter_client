@@ -1,0 +1,32 @@
+version: '2'
+services:
+  app:
+    build: ../..
+    env_file: ../../.env
+    command: ./entrypoint_webapp.sh
+    ports:
+      - ${TRACKSTATUS_APP_PORT}:5000
+    volumes:
+      - ../..:/myapp
+    depends_on:
+      - postgres
+
+  postgres:
+    # This expects that the username and password are set outside the codebase in POSTGRES_USER and POSTGRES_PASSWORD
+    env_file: ../../.env
+    volumes:
+      - /var/lib/postgresql/data:/var/lib/postgresql/data
+    image: postgres
+    
+  sidekiq:
+  # assumes there's a container called redis it can connect to, already.
+    build: ../..
+    env_file: ../../.env
+    command: ./entrypoint_sidekiq.sh
+    volumes:
+      - ../..:/myapp
+      
+networks:
+  default:
+    external:
+      name: ${BASE_DOCKER_COMPOSE_NETWORK}

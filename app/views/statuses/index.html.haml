@@ -1,0 +1,17 @@
+= form_tag('/statuses', method: :delete) do
+  = text_field_tag :day_window, '7'
+  = submit_tag "Clean"
+  
+%table.table.table-striped.table-bordered
+  %tr
+    %th Source
+    %th Description
+    %th Message
+  - @statuses.each do |status|
+    %tr
+      %td
+        = status.source
+      %td
+        = status.description
+      %td
+        = status.message

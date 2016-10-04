@@ -1,0 +1,14 @@
+one:
+  src: 'b'
+  dest: 't1'
+  created_at: <%= Time.now - 10.days %>
+
+two:
+  src: 'Zasdasd'
+  dest: 't2'
+  created_at: <%= Time.now - 9.days %>
+
+latest:
+  src: 'aZZ'
+  dest: 't3'
+  created_at: <%= Time.now - 8.days %>

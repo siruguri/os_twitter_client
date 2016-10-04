@@ -1,0 +1,7 @@
+foll_req:
+  handle: existing_followers_profile
+  request_type: 'follower_ids'
+  cursor: 65065
+  ran_limit: false
+  created_at: <%= Time.now - 1.day %>
+  

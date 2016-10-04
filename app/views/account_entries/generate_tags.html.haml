@@ -1,0 +1,17 @@
+- if @generated_tags
+  .paragraph
+    Generated tags for
+    = @generated_tags
+    account enries.
+
+= form_tag('/account_entries/update_tag', id: 'main-form') do
+  .form-element-row
+    = hidden_field_tag 'original_merchant_name', @data[0]
+    = text_field_tag 'merchant_name', @data[0], class: 'form-control'
+  .paragraph
+    = "#{@data[1]} untagged entries"
+  .paragraph
+    Tag:
+    = text_field_tag 'tag_name', '', class: 'form-control', id: 'tagname-id'
+  .form-element-row
+    = submit_tag 'Tag it'

@@ -1,0 +1,42 @@
+%h3
+  = "Sort#{current_user ? ' Your Followers': ''} By"
+.paragraph.small-font
+  (empty? #{link_to "Try running a stats update", analyses_task_page_url})
+.paragraph.row
+  .col-xs-12
+    .selection-box{'data-target' => 2}
+      Time of latest tweet
+    .selection-box.sort-target{'data-target' => 1}
+      Total tweets
+    .selection-box{'data-target' => 0}
+      Tweets retrieved
+    .selection-box{'data-target' => 3}
+      Avg Re-tweets
+
+.profile-list
+  .row
+    .col-xs-2
+      Handle
+    .col-xs-2
+      Total tweets
+    .col-xs-5
+      Retweet Stats (avg/total)
+    .col-xs-3
+      Last tweet at 
+  - if @profiles_list.count > 0
+    .databox#databox-1
+      .paragraph
+        = render partial: 'stat_boxes', locals: {sort_method: :tweets_count}
+
+    .databox#databox-0
+      .paragraph
+        = render partial: 'stat_boxes', locals: {sort_method: :tweets_retrieved}
+
+    .databox#databox-2
+      .paragraph
+        = render partial: 'stat_boxes', locals: {sort_method: :last_known_tweet_time}
+
+    .databox#databox-3
+      .paragraph
+        = render partial: 'stat_boxes', locals: {sort_method: :retweeted_avg}
+

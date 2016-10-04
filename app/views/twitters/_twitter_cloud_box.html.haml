@@ -1,0 +1,7 @@
+.twitter-box.row
+  .twitter-box-title
+    = "#{list_type_title} (#{divisor})"
+  .paragraph
+    - word_list.each do |w|
+      .twitter-wcbox
+        #{word_display w, divisor}

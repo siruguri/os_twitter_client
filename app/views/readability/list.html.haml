@@ -1,0 +1,22 @@
+= form_tag readability_tag_article_path, class: 'tagbox', id: 'tags-form' do
+  = hidden_field_tag 'start', @offset
+  = hidden_field_tag 'token_list', nil, id: 'token-list'
+  = hidden_field_tag 'article_id_tag', @article.id.to_s, id: 'article-id-tag'
+  %input.form-control#tags-list{name: 'tags-list'}
+  %input.btn.btn-default#tags-list-submit{type: 'submit', value: 'Add tags'}
+
+.next-link
+  - if @next != -1
+    = link_to 'Next', readability_list_path(start: @next), id: 'next'
+.prev-link
+  - if @prev != -1
+    = link_to 'Prev', readability_list_path(start: @prev), id: 'prev'
+.original-link
+  %a{href: @article.original_url}
+    Original Article
+  %span.uppercase
+    = "(#{domain_name(@article.original_url)})"
+.tags-display
+  = @article.tags.pluck(:label).join ", "
+.readability-wrapper
+  = raw(@article.body)

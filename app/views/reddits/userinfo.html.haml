@@ -1,0 +1,12 @@
+%h1
+  = "Reddit username #{@user.username}"
+
+- if @message == :job_started
+  Job started
+- else
+  Found (possibly unextracted) record for user.
+  %ol
+  - @user.user_info.each do |i|
+    %li
+      = "#{i[0]}: #{i[1]}"
+                   

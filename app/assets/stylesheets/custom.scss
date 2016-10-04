@@ -1,0 +1,134 @@
+body {
+ height: auto;
+ width: 100%;
+ font-family: 'Lato', sans-serif;
+ font-size: $base-font;
+}
+
+.top {
+  margin-top: 10px;
+  border-top: solid 2px #CCC;
+}
+
+.flash-box {
+  padding: 10px 5px;
+  min-height: 40px;
+
+  background-color: lightred;
+  color: black;
+
+  display: inline-block;
+  margin: auto;
+}
+
+.original-link {
+  margin-bottom: 20px;
+  a {
+    color: blue;
+  }
+}
+
+.next-link {
+  font-size: 1.5em;
+  color: #EE2222;
+
+  margin: 1em 0px 2em 0px;
+}
+
+input#token-input-tags-list {
+  margin-bottom: 10px;
+}
+
+.bottomborder {
+  padding-bottom: 5px;
+  border-bottom: solid 1px green;
+}
+
+.paragraph {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.topborder {
+  border-top: solid 1px black;
+}
+
+.btn {
+  background-color: lightgreen;
+}
+
+.tagbox {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+  float: right;
+  width: 200px;
+  margin-top: 10px;
+}
+
+.token-input-dropdown ul, ul.token-input-list {
+  list-style: none;
+}
+
+.inline-block, ul.token-input-list {
+  display: inline-block;
+}
+
+.token-input-dropdown { 
+  background-color: peachpuff;
+  padding: 5px;
+  opacity: 0.8;
+  
+  ul {
+    li {
+      cursor: pointer;
+    }
+    li.token-input-selected-dropdown-item {
+      color: red;
+    }
+  }
+}
+
+.token-input-delete-token {
+    cursor: pointer;
+}
+
+.form-element-row {
+  margin-bottom: 10px;
+}
+
+.small-font {
+  font-size: $small-font;
+}
+
+.time-font {
+  font-family: Courier;
+}
+
+/* bootstrap resets */
+.nav > li > a {
+  display: inline-block;
+}
+
+.toast {
+  transition: height 1s, padding-top 1s;
+  -webkit-transition: height 1s, padding-top 1s;
+  position: fixed;
+  z-index: 2;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #fde073;
+  padding-top: 0;
+  height: 0;
+  
+  text-align: center;
+  border: none;
+  
+  &.open {
+    padding-top: 10px;
+    height: 50px;
+    border: solid 1px gray;
+  }
+}

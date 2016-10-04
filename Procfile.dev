@@ -1,0 +1,3 @@
+web: bin/rails s
+redis: redis-server
+worker: bundle exec sidekiq -q tweets -q twitter_fetches -L log/sidekiq.log

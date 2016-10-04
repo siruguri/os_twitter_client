@@ -1,0 +1,68 @@
+DEFAULTS: &DEFAULTS
+  processed: <%= false %>
+  is_retweeted: false
+  
+tweet_1:
+  <<: *DEFAULTS
+  tweet_details: <%= {entities: {urls: [{expanded_url: 'this is expanded'}]}, text: 'bear bear cheetah cheetah', retweet_count: 2, id: 'latest_tweet_id', retweeted_status: {"text" => 'hello'}}.to_json %>
+  twitter_id: 1
+  tweeted_at: <%= DateTime.strptime('2016-03-15 12:00:00', '%Y-%m-%d %H:%M:%S ') %>
+  mesg: bear bear cheetah cheetah https://t.co/jl1llclk12t
+  tweet_id: 9918575021211
+  
+tweet_2:
+  <<: *DEFAULTS
+  tweet_details: <%= {entities: {urls: []}, text: 'bear bear cheetah cheetah', retweet_count: 5, id: 'latest_tweet_id'}.to_json %>
+  twitter_id: 1
+  tweeted_at: <%= DateTime.strptime('2016-06-15 12:00:00', '%Y-%m-%d %H:%M:%S ') %>
+  mesg: bear bear cheetah cheetah https://t.co/jl1llclk12t
+  tweet_id: 9918575028735
+  
+tweet_3:
+  <<: *DEFAULTS
+  tweet_details: <%= {entities: {urls: []}, text: 'fox blue', retweet_count: 5, id: 'latest_tweet_id', retweeted_status: nil}.to_json %>
+  twitter_id: 66
+  tweeted_at: <%= DateTime.strptime('2016-06-15 12:00:00', '%Y-%m-%d %H:%M:%S ') %>
+  mesg: fox blue
+  tweet_id: 99185750219912
+
+tweet_leader_1:
+  <<: *DEFAULTS
+  tweet_details: <%= {entities: {urls: []}, text: 'fox blue', retweet_count: 5, id: 'latest_tweet_id', retweeted_status: nil}.to_json %>
+  twitter_id: 5
+  tweeted_at: <%= DateTime.strptime('2016-06-15 12:00:00', '%Y-%m-%d %H:%M:%S ') %>
+  mesg: leader tweet for feed testing cannot be more recent than Jun 15 '16
+  tweet_id: 99185750211234
+  
+tweet_someother_leader_1:
+  <<: *DEFAULTS
+  tweet_details: <%= {entities: {urls: [{expanded_url: 'http://expanded.com'}]}, text: 'fox blue', retweet_count: 5, id: 'latest_tweet_id', retweeted_status: nil}.to_json %>
+  twitter_id: 55
+  tweeted_at: <%= DateTime.strptime('2016-06-14 12:00:00', '%Y-%m-%d %H:%M:%S ') %>
+  mesg: leader tweet for feed testing cannot be more recent than Jun 15 '16
+  tweet_id: 99185750215678
+
+tweet_recent_leader_1:
+  <<: *DEFAULTS
+  tweet_details: <%= {entities: {urls: []}, text: 'fox blue', retweet_count: 5, id: 'latest_tweet_id', retweeted_status: nil}.to_json %>
+  twitter_id: 66
+  tweeted_at: <%= DateTime.now - 2.hours %>
+  mesg: recent leader tweet for feed testing has to be more recent than 24 hours ago
+  tweet_id: 81885777111234
+
+tweet_recent_leader_2:
+  <<: *DEFAULTS
+  tweet_details: <%= {entities: {urls: []}, text: 'fox blue', retweet_count: 5, id: 'latest_tweet_id', retweeted_status: {full_text: 'hello hello rt me', entities: {urls: ['http://www.google.com']}, user: {screen_name: 'orig user'}}}.to_json %>
+  twitter_id: 66
+  tweeted_at: <%= DateTime.now - 2.hours %>
+  mesg: recent leader tweet for feed testing has to be more recent than 24 hours ago
+  tweet_id: 81885798011234
+  is_retweeted: <%= true %>
+
+tweet_just_follower_1:
+  <<: *DEFAULTS
+  tweet_details: <%= {entities: {urls: []}, text: 'fox blue', retweet_count: 5, id: 'latest_tweet_id', retweeted_status: nil}.to_json %>
+  twitter_id: 807
+  tweeted_at: <%= DateTime.now - 2.hours %>
+  mesg: just follower 1 tweet
+  tweet_id: 18851882479234

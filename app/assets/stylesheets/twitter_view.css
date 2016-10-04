@@ -1,0 +1,174 @@
+h3 {
+  margin: 5px 0px;
+}
+
+@mixin box-common() {
+  border-radius: 3px;
+  border: solid 1px;
+}
+
+.twitter-box {
+  @include box-common();
+  border-color: blue;
+  padding: 10px;
+  margin-bottom: 5px;
+}
+
+.twitter-biobox {
+  @include box-common();
+  border-color: black;
+  padding: 2px;
+  float: left;
+  margin-top: 2px;
+  margin-right: 20px;
+  &.handlebox {
+    padding: 5px;
+    background-color: rgb(69, 153, 241);
+    a {
+      color: black;
+    }
+  }
+}
+
+.twitter-wcbox {
+  @include box-common();
+  padding: 2px;
+  margin-top: 2px;
+  margin-right: 20px;
+  float: left;
+}
+
+.selection-box {
+  float: left;
+  margin-right: 10px;
+  border: solid 1px black;
+  background: lightgrey;
+  border-radius: 3px;
+  cursor: pointer;
+
+  &.sort-target {
+    background-color: lightgreen;
+  }
+}
+.databox {
+  display: none;
+}
+
+.profile-list {
+  display: block;
+  border-top: solid 2px black;
+
+  .handle-details {
+    margin-bottom: 5px;
+  }
+}
+
+.feed-refresh {
+  position: relative;
+}
+.spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #F1F1F1;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position-x: 50%;
+  background-image: image-url('spinner.gif')
+}
+
+.tweet-list {
+  list-style: numeric;
+  .item {
+    background-color: #FFF;
+    &:hover {
+      background-color: #f5f8fa;
+    }
+
+    border: 1px solid #E1E8ED;
+    padding: 9px 12px;
+    .line-one {
+      color: #8899a6;
+      font-size: 13px;
+      line-height: 20px;
+      .retweet-button {
+	&.disabled {
+	  background: #8899A6;
+	  color: #FFFFAA;
+	  cursor: inherit;
+	}
+	
+	position: relative;
+	float: right;
+	margin-top: 5px;
+	background-color: #16a765;
+	color: white;
+	border-radius: 3px;
+	padding: 3px;
+	font-size: 0.9em;
+	cursor: pointer;
+      }
+      
+      .handle {
+	display: inline-block;
+	a {
+	  color: #8899a6;
+	  text-decorate: underline;
+	  &:hover {
+	    cursor: pointer;
+	  }
+	}
+	font-weight: bold;
+      }
+
+      .time {
+	&:before {
+	  content: '\00b7';
+	}
+	
+	display: inline-block;
+      }
+    }
+    
+    .tweet-media {
+      margin-top: 10px;
+      img {
+	max-height: 260px;
+      }
+    }
+  }
+}
+
+.previous_page {
+  display: none;
+}
+.next_page {
+  margin-left: 15px;
+}
+.time_data {
+  display: none;
+}
+.countdown {
+  margin-bottom: 10px;
+  * {
+    display: inline-block;
+    background-color: black;
+    color: white;
+    min-width: 30px;
+    text-align: right;
+    margin-right: 10px;
+    padding: 3px 5px 5px 3px;    
+    border-radius: 3px;    
+  }
+}
+
+.quoted_box {
+  margin-top: 12px;
+  padding: 12px;
+  border: solid 1px #e1e8ed;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}

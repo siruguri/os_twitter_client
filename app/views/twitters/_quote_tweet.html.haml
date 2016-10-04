@@ -1,0 +1,6 @@
+.line-one
+  .handle
+    = link_to (quoted_tweet['user']['screen_name'] || quoted_tweet['user']['id_str']), 'https://twitter.com/' + (quoted_tweet['user']['screen_name'] || quoted_tweet['user']['id_str']) 
+
+.mesg
+  = (quoted_tweet['full_text'] || quoted_tweet['text'])

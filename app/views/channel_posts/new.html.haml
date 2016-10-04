@@ -1,0 +1,16 @@
+.paragraph
+  Post your message!
+
+= form_for(@channel_post) do |f|
+  .form-element-row
+    = f.label :message, "Say something :)"
+    = f.text_area :message, class: 'form-control', autofocus: true
+  .form-element-row
+    = f.label :url, "URL"
+    = f.text_field :url, class: 'form-control'
+  - if @channel_list
+    .form-element-row
+      = label_tag :channel_list, 'Post To'
+      = select_tag :channel_list, options_for_select(@channel_list)
+  = f.submit 'Post!', class: 'btn btn-default'
+

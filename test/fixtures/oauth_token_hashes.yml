@@ -1,0 +1,21 @@
+oauth_token_1:
+  token: abcdefgh
+  secret: abcdefgh_secret
+  source: twitter
+  user: user_1
+
+tkh_2:
+  user: user_2
+  request_token: <%= OAuth::RequestToken.new('reqtoken', 'reqsecret').to_yaml.inspect %>
+  source: twitter
+  
+tkh_wo_profile_1:
+  user: user_wo_profile
+  request_token: <%= OAuth::RequestToken.new('reqtokenxx', 'reqsecretxx').to_yaml.inspect %>
+  source: twitter
+  
+tkh_user_with_profile:
+  token: abcdefgh
+  secret: abcdefgh_secret
+  source: twitter
+  user: user_with_profile
