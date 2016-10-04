@@ -56,3 +56,7 @@ Otherwise, restarting a container with a new version will cause your container t
 ## Contributing
 
 Ya know, pull requests, etc.
+
+## License
+
+I give this unto the world under the [MIT License](http://www.opensource.org/licenses/MIT).
