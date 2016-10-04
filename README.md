@@ -13,13 +13,24 @@
 
 ## Using this thing
 
+First things first: let's get your Twitter account setup
+
 * Click on "Input handle" at the top - we'll call this the _dashboard_
+* Focus on the first row of green buttons for now.
 * Click Get Bio
 * In the drop down menu, click on Profile, and check it all looks a-ok.
 * Go back to the dashboard, and click on Get Your Older Tweets
 * Go to `http://localhost:5000/document_analyses/task_page`
 * Click that first button - "Compute Document Universe"
 * Go back to the profile now, it should have a bunch of awesome stats!
+
+Now, let's see whom you are following, and what they are up to:
+
+* In the dashboard, click on "Refresh whom you follow." Pro tip: this is correct grammar, and your open source Twitter client is therefore doing more than freeing you from Twitter's client shackles, it is helping you sound more edumacated!
+* You might have to wait a few seconds - then, refresh the dashboard.
+* Beneath the green buttons, it'll now list your number of friends, and say they don't have Tweets. Click on "Process them!"
+* You should now see lots of jobs show up in your Sidekiq dashboard (path: `/sidekiq_ui/busy`)
+* In the drop down menu, click on "Feed". Read to your heart's content!
 
 ## Deploying
 
@@ -34,6 +45,13 @@ Postgres database, one for the Sidekiq process, and expects one already to be th
 
 * the environment variable `BASE_DOCKER_COMPOSE_NETWORK` to find the Redis server on.
 * the variable `TWITTERCLIENT_APP_PORT` to use as the one exposed into the container (mapping to the app's own internal port 5000)
+
+Of course, when you use Docker, you have to remember that it's your responsibility to:
+
+* Re build your containers if your bundle needs updating.
+* Run migrations if your current deploy is behind on them.
+
+Otherwise, restarting a container with a new version will cause your container to exit prematurely.
 
 ## Contributing
 

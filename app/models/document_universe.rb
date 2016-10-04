@@ -9,8 +9,6 @@ class DocumentUniverse < ActiveRecord::Base
       grp.map(&:mesg).each do |mesg|
         du.add TextStats::DocumentModel.new(mesg)
       end
-
-      Rails.logger.debug ">>> Batch #{ctr}"
       ctr += 1
     end
     create universe: du

@@ -31,7 +31,7 @@
             = better_urls(tweet.tweet_details['retweeted_status'])
           - if tweet.tweet_details['retweeted_status']['entities']['media']&.size.try(:>, 0)
             .tweet-media
-              %img{src: tweet.tweet_details['entities']['media'][0]['media_url_https']}
+              %img{src: tweet.tweet_details['retweeted_status']['entities']['media'][0]['media_url_https']}
         - elsif tweet.tweet_details['quoted_status']
           .mesg
             = tweet_text(tweet)
