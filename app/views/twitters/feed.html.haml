@@ -44,5 +44,5 @@
             .tweet-media
               %img{src: tweet.tweet_details['entities']['media'][0]['media_url_https']}
 
-= will_paginate @feed_list, page_links: false
-
+- if @feed_list.size > 0
+  = will_paginate @feed_list, page_links: false

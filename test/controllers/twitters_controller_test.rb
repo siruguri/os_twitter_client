@@ -19,6 +19,12 @@ class TwittersControllerTest < ActionController::TestCase
       assert_select '.feed-refresh'
     end
     
+    it 'works with profile with no twitter id and no friends' do
+      sign_out :user
+      get :feed, params: {handle: twitter_profiles(:no_id_profile).handle}
+      assert_select '.feed-refresh'
+    end
+    
     it 'shows no refresh button if feed is topped up' do
       # this is a graph connection: user_with profile follows recent_leader who has tweeted 2 hours ago in fixtures
       generate_new_tweets twitter_profiles(:recent_leader_profile), 14

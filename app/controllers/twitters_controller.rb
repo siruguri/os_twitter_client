@@ -151,7 +151,7 @@ class TwittersController < ApplicationController
   end
 
   def feed
-    unless params[:refresh_now] == '1'
+    unless params[:refresh_now] == '1' or current_user.nil?
       @time_to_wait = (Time.now - 24.hours) - Tweet.top_of_feed(current_user.twitter_profile)
 
       # how long before the next refresh? Might be more efficient to do this on the client, in JS
@@ -164,11 +164,16 @@ class TwittersController < ApplicationController
     else
       @time_to_wait = 0
     end
-    
-    bkmk_key = "#{current_user.email}.twitter.bookmark"
-    bkmk = Config.find_by_config_key(bkmk_key)&.config_value
-    page = params[:page]&.to_i || bkmk&.to_i || 1
 
+    page =
+      if current_user
+        bkmk_key = "#{current_user.email}.twitter.bookmark"
+        bkmk = Config.find_by_config_key(bkmk_key)&.config_value
+        params[:page]&.to_i || bkmk&.to_i || 1
+      else
+        1
+      end
+    
     @feed_list = current_user&.twitter_profile ?
                    Tweet.latest_by_friends(current_user.twitter_profile).paginate(page: page, per_page: 10) :
                    []

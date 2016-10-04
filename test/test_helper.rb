@@ -26,3 +26,6 @@ class ActionController::TestCase
   # Some controllers will need Devise
   include Devise::Test::ControllerHelpers
 end
+Capybara::Webkit.configure do |config|
+  config.block_unknown_urls
+end
