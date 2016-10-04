@@ -13,12 +13,14 @@ shim_funcs = ->
   $('.action').click (evt) ->
     # A user's browser action might have removed this class subsequent to handler
     # attachment.
-    if !($(evt.target).hasClass('action'))
+    #
+    target = $(evt.target)
+    if !(target.hasClass('action'))
       return null
       
-    action_id = $(evt.target).data('action-id')
+    action_id = target.data('action-id')
     if typeof action_id != 'undefined'
-      $(evt.target).prepend spinner_div
+      target.prepend spinner_div
       xhr = $.ajax(
         type: 'POST'
         url: '/ajax_api'
@@ -28,9 +30,11 @@ shim_funcs = ->
       
       xhr.done((d, s, x) ->
           curtain_drop d.data
+          target.addClass 'disabled'
       ).fail((d, s, x) ->
           # failure
           curtain_drop 'wtf'
+          target.addClass 'wtf'
       ).always( ->
         setTimeout( ->
             $(evt.target).find('.spinner').remove()

@@ -19,7 +19,7 @@ module Ajax
         end
       when 3
         if opts[:user].present? and opts[:user].is_a?(User)
-          tweet_id_list = JSON.parse opts[:data][0]
+          tweet_id_list = JSON.parse(opts[:data][0]).map { |s| s.to_i }
           retweets = RetweetRecord.where(user_id: opts[:user].id).in(tweet_id: tweet_id_list).map { |r| r.tweet_id }
           Response.update retweets
           executed = true

@@ -40,7 +40,7 @@ twitter_feed_functions = ->
   # Get all the tweets that have been retweeted
   page_tweet_id_list = $('.retweet-button').get()
   ids = page_tweet_id_list.map (e, i) ->
-    parseInt($(e).data('action-data'))
+    $(e).data('action-data')
   unless ids.length == 0
     curr_status = $.get('/ajax_api?payload=actions/execute/3/' + JSON.stringify(ids),
       (d, s, x) ->
