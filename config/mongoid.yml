@@ -3,17 +3,17 @@ production:
   clients:
     # Defines the default client. (required)
     default:
-      database: track_status_prod
+      database: os_twitter_client_prod
       hosts:
-        - mongodb:27017
+        - <%= "#{ENV['MONGODB_HOST']}:27017" %>
 development:
   # Configure available database clients. (required)
   clients:
     # Defines the default client. (required)
     default:
-      database: track_status_development
+      database: os_twitter_client_dev
       hosts:
-        - mongodb:27017
+        - <%= "#{ENV['MONGODB_HOST']}:27017" %>
       options:
         # Change the default write concern. (default = { w: 1 })
         # write:
@@ -138,9 +138,9 @@ development:
 test:
   clients:
     default:
-      database: track_status_test
+      database: os_twitter_client_test
       hosts:
-        - mongodb:27017
+        - <%= "#{ENV['MONGODB_HOST']}:27017" %>
       options:
         read:
           mode: :primary

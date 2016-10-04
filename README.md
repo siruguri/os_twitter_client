@@ -28,7 +28,7 @@ Now, let's see whom you are following, and what they are up to:
 
 * In the dashboard, click on "Refresh whom you follow." Pro tip: this is correct grammar, and your open source Twitter client is therefore doing more than freeing you from Twitter's client shackles, it is helping you sound more edumacated!
 * You might have to wait a few seconds - then, refresh the dashboard.
-* Beneath the green buttons, it'll now list your number of friends, and say they don't have Tweets. Click on "Process them!"
+* Beneath the green buttons, it'll now list your number of friends, and say they don't have Tweets. Click on "Process them!" (Keep waiting, until that number is correct.)
 * You should now see lots of jobs show up in your Sidekiq dashboard (path: `/sidekiq_ui/busy`)
 * In the drop down menu, click on "Feed". Read to your heart's content!
 
@@ -39,6 +39,7 @@ know that your app requires two external services:
 
 * A Postgres database, which is configured in production using the environment for the database name, username and password. See `.env.sample`
 * A Redis server, which is expected to be listening at port 6379 (the Redis default) at the host specified by the environment variable `REDIS_HOST`
+* A Mongo DB server, which is expected to be listening at port 27017 (the Mongo DB default) at the host specified by the environment variable `MONGODB_HOST`
 
 The sample Docker Compose file in `docker/scripts` shows a setup that builds a container for the app, one for the
 Postgres database, one for the Sidekiq process, and expects one already to be there for the Redis server. It expects two variables to be set in the environment that runs Docker:

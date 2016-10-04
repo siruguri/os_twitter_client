@@ -152,7 +152,7 @@ class TwittersController < ApplicationController
 
   def feed
     unless params[:refresh_now] == '1' or current_user.nil?
-      @time_to_wait = (Time.now - 24.hours) - Tweet.top_of_feed(current_user.twitter_profile)
+      @time_to_wait = (Time.now - 24.hours) - (Tweet.top_of_feed(current_user.twitter_profile) || DateTime.now - 1.year)
 
       # how long before the next refresh? Might be more efficient to do this on the client, in JS
       if @time_to_wait < 0
