@@ -5,9 +5,18 @@ services:
     env_file: ../../.env
     command: ./entrypoint_webapp.sh
     ports:
-      - ${TWITTERCLIENT_APP_PORT}:5000
+      - ${TRACKSTATUS_APP_PORT}:5002
     volumes:
       - ../..:/myapp
+    depends_on:
+      - postgres
+
+  postgres:
+    # This expects that the username and password are set outside the codebase in POSTGRES_USER and POSTGRES_PASSWORD
+    env_file: ../../.env
+    volumes:
+      - /var/lib/postgresql/data:/var/lib/postgresql/data
+    image: postgres
     
   sidekiq:
   # assumes there's a container called redis it can connect to, already.

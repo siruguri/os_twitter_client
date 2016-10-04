@@ -5,7 +5,8 @@ module TwitterManagement
       refresh_list = []
       now = Time.now
 
-      if Tweet.top_of_feed(profile) < (now - 24.hours)
+      top = Tweet.top_of_feed(profile)
+      if top.nil? or top < (now - 24.hours)
         profile.friends.where('last_tweet_time is not null and last_tweet_time > ?', DateTime.now - 100.days).
           order(last_tweet_time: :desc).each do |leader_profile|
           TwitterFetcherJob.perform_later leader_profile, 'tweets', token: token, direction: 'newer',

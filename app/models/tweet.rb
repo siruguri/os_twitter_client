@@ -8,7 +8,8 @@ class Tweet < ActiveRecord::Base
   
   def self.top_of_feed(profile)
     # returns the tweeted time of where the user's feed has last been updated to
-    latest_by_friends(profile).first.tweeted_at
+    # nil if there is no feed
+    latest_by_friends(profile).first&.tweeted_at
   end
   
   def is_retweet?
