@@ -130,12 +130,29 @@ class TwitterClientWrapperTest < ActiveSupport::TestCase
       assert Tweet.last.is_retweet?
     end
 
-    it 'works with pagination' do
+    it 'works with pagination to get latest tweets' do
       assert_difference('Tweet.count', 2) do
         h = twitter_profiles :bobcostas
         # Bob has a dummy tweet
         @c.rate_limited do
           fetch_tweets! h, relative_id: -1, pagination: true
+        end
+      end
+
+      assert_equal 'twitter', WebArticle.last.source
+
+      # There's one scraper job for the full list of articles and one for the pagination
+      assert_equal 1, enqueued_jobs.select { |j| j[:job] == TwitterRedirectFetchJob }.size
+      assert_equal 1, enqueued_jobs.select { |j| j[:job] == TwitterFetcherJob }.size
+    end
+
+    it 'works with pagination to get range' do
+      assert_difference('Tweet.count', 2) do
+        h = twitter_profiles :bobcostas
+        # Bob has a dummy tweet
+        @c.rate_limited do
+          # older than 712.., newer than 9987...
+          fetch_tweets! h, direction: :older, relative_id: 71209123, since_id: 9987123, pagination: true
         end
       end
 

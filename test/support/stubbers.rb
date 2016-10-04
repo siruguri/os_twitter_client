@@ -45,6 +45,10 @@ def set_net_stubs
     to_return(:status => 200, body: valid_twitter_response(:relative_id_tweets))
   
   #statuses/user_timeline.json?count=200&exclude_replies=true&include_rts=true&screen_name=bobcostas&trim_user=0
+  stub_request(:get, /api.twitter.com.1.1.statuses.user_timeline.json.count=200.exclude_replies=true.include_rts=true.max_id=71209123&screen_name=bobcostas&since_id=9987123/).
+    with(headers: single_token_headers).
+    to_return(status: 200, body: valid_twitter_response(:plaintweets))
+  
   stub_request(:get, /api.twitter.com.1.1.statuses.user_timeline.json.count=200.exclude_replies=true.include_rts=true.screen_name=(bobcostas|twitter_handle).trim_user=0.tweet_mode=extended/).
     with(headers: single_token_headers).
     to_return(status: 200, body: valid_twitter_response(:plaintweets))
