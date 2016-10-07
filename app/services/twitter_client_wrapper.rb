@@ -79,7 +79,7 @@ class TwitterClientWrapper
       )
       ActiveRecord::Base.logger.level = 0      
       
-      TwitterRedirectFetchJob.perform_later article_list
+      #TwitterRedirectFetchJob.perform_later article_list
     end
   end
   
@@ -288,7 +288,7 @@ class TwitterClientWrapper
           tweet[:retweeted_status][:user] = retweeted_user_info
         end
         
-        new_tweets << Tweet.new(tweet_details: tweet, tweet_id: tweet[:id], mesg: tweet[:full_text],
+        new_tweets << Tweet.new(tweet_details: tweet, tweet_id: tweet[:id], mesg: tweet[:full_text], processed: false,
                                 tweeted_at: tweet[:created_at], user: handle_rec, is_retweeted: is_retweeted)
         new_tweets.last.mesg.gsub! twitter_regex, ''
         all_web_articles += make_web_article_list tweet[:entities]
@@ -307,7 +307,7 @@ class TwitterClientWrapper
           else
             {}
           end
-        next_opts = ({direction: 'older', relative_id: new_tweets.last.tweet_id}).merge pass_since
+        next_opts = ({pagination: true, direction: 'older', relative_id: new_tweets.last.tweet_id}).merge pass_since
         TwitterFetcherJob.perform_later(handle_rec, 'tweets', next_opts)
       end
     end

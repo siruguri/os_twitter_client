@@ -5,24 +5,28 @@ class AnalysisController < ApplicationController
   def execute_task
     if params[:commit]
       if ["re-bio all handles", 'update profile stats', 'compute document universe'].include?(params[:commit].downcase)
-        flash[:notice] = "Executed command #{params[:commit]}"
+        notice_str = "Got command #{params[:commit]}"
         case params[:commit].downcase
-        when 'compute document universe'
+        when /compute document universe/
           DocumentUniverse.reanalyze
-        when 'update profile stats'
-          ProfileStat.update_all
-        when "re-bio all handles"
+          notice_str += '... executed'
+        when /update profile stats/
+          ProfileStat.build_cache
+          notice_str += '... executed'
+        when /re.bio all handles/
           @count = 0
           TwitterProfile.all.each do |t|
             @count += 1
             TwitterFetcherJob.perform_later(t, 'bio')
           end
-          flash[:notice] += ": Processed #{@count} profiles"
+          notice_str += ": Processed #{@count} profiles"
         end
       else
         flash[:error] = "No such command"
       end
     end
+
+    flash[:notice] = notice_str
     render :task_page
   end
 end

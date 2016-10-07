@@ -2,6 +2,11 @@ h3 {
   margin: 5px 0px;
 }
 
+button.urgent {
+  background-color: red;
+  color: white;
+}
+
 @mixin box-common() {
   border-radius: 3px;
   border: solid 1px;

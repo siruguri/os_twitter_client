@@ -20,12 +20,12 @@ class AnalysisControllerTest < ActionController::TestCase
     # - added leader and some other leader on 9/14/16
     # added just_followers_1 on 9/23
     no_stat_has_tweets_profile_count = 4
-    old_stats_agg = profile_stats(:ps_1).stats_hash[:retweet_aggregate]
+    old_stats_agg = profile_stats(:ps_1).stats_hash_v2[:retweet_aggregate]
     assert_difference('ProfileStat.count', no_stat_has_tweets_profile_count) do
       post :execute_task, params: {commit: 'Update Profile Stats'}
     end
 
-    assert_equal old_stats_agg, profile_stats(:ps_1).reload.stats_hash[:retweet_aggregate]
+    assert_equal old_stats_agg, profile_stats(:ps_1).reload.stats_hash_v2[:retweet_aggregate]
   end
 
   test 'reprocess all profiles' do

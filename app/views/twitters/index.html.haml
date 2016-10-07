@@ -1,7 +1,7 @@
 %h3
   = "Sort#{current_user ? ' Your Followers': ''} By"
 .paragraph.small-font
-  (empty? #{link_to "Try running a stats update", analyses_task_page_url})
+  (empty? Try populating your followers, or #{link_to "running a stats update", analyses_task_page_url})
 .paragraph.row
   .col-xs-12
     .selection-box{'data-target' => 2}

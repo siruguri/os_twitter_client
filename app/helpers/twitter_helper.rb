@@ -2,8 +2,8 @@ module TwitterHelper
   def number_of_tweets_message(profile)
     # This is only ever called for profiles that have stats calculated
     stat = profile.profile_stat
-    "#{sprintf("%0.2f", stat.stats_hash['retweeted_avg'])} / " +
-      " #{stat.stats_hash['retweet_aggregate']}"
+    "#{sprintf("%0.2f", stat.stats_hash_v2['retweeted_avg'])} / " +
+      " #{stat.stats_hash_v2['retweet_aggregate']}"
   end
   
   def nice_date(dt)
@@ -18,7 +18,7 @@ module TwitterHelper
     (word_list, divisor) =
       case type
       when :webdocs
-        [@word_cloud[:webdocs_word_cloud], @word_cloud[:webdocs_count]]
+        [@word_cloud[:webdocs_word_cloud], @bio.crawled_web_documents.count]
       when :retweets
         [@word_cloud[:retweets_word_cloud], @word_cloud[:tweets_count] - @word_cloud[:orig_tweets_count]]
       when :all

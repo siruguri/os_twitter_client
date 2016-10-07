@@ -136,7 +136,9 @@ class TwittersController < ApplicationController
       when /get.*older tweets/
         # Let's get the bio too, if we never did, when asking for tweets
         bio @bio if !@bio.member_since.present?
-        tweets(@bio, direction: 'older')
+
+        pagination = (params[:commit].downcase =~ /all.older/ ? {pagination: true} : {})
+        tweets(@bio, ({direction: 'older'}.merge(pagination)))
       when /get newer tweets/
         tweets(@bio, direction: 'newer')
       end
@@ -188,12 +190,17 @@ class TwittersController < ApplicationController
 
     newest_tweet_enter_date = (lt = @latest_tweets&.first) ? lt.tweeted_at : nil
     @been_a_while = lt.nil? || ((DateTime.now - 24.hours) > newest_tweet_enter_date)
-    
-    unless @latest_tweets.count == 0
-      @universe_size = DocumentUniverse.count
-      @word_cloud = word_cloud
-    end
 
+    unless @latest_tweets.count == 0 or DocumentUniverse.count == 0
+      if @bio.word_cloud.empty? or params[:word_cloud] == '1'
+        idlist = @latest_tweets.pluck(:tweet_id)        
+        @bio.word_cloud = word_cloud(tweets: TweetText.where({tweet_id: {"$in" => idlist}}),
+                                     document_universe: DocumentUniverse.last.universe, bio: @bio, use_mongo: true)
+        @bio.save
+      end
+      @word_cloud = @bio.word_cloud
+    end
+    
     @g_set_title = @bio.handle
   end
 
@@ -247,67 +254,17 @@ class TwittersController < ApplicationController
     TwitterFetcherJob.perform_later t, 'tweets', ({token: @app_token}.merge(opts))
   end
 
-  def word_cloud
-    # Use a db cache for the text analysis
-    if @bio.word_cloud.empty? or params[:word_cloud] == '1'
-      @word_cloud = {}
-      doc_sets = separated_docs @latest_tweets.all
-
-      o_dm = TextStats::DocumentModel.new(doc_sets[:orig_doc], twitter: true)
-      a_dm = TextStats::DocumentModel.new(doc_sets[:all_doc], twitter: true)
-      r_dm = TextStats::DocumentModel.new(doc_sets[:retweet_doc], twitter: true)
-      w_dm = TextStats::DocumentModel.new(crawled_web_documents(@bio), as_html: true)
-      
-      if @universe_size > 0
-        du = DocumentUniverse.last.universe
-        o_dm.universe = du
-        a_dm.universe = du
-        r_dm.universe = du
-        w_dm.universe = du
-      end
-      
-      orig_word_cloud = o_dm.sorted_counts
-      all_word_cloud = a_dm.sorted_counts
-      
-      @word_cloud.merge!({orig_word_cloud: orig_word_cloud, tweets_count: doc_sets[:tweets_count],
-                          orig_tweets_count: doc_sets[:orig_tweets_count],
-                          orig_word_cloud_filtered: orig_word_cloud.select { |w| remove_entities_and_numbers w },
-                          all_word_cloud: all_word_cloud,
-                          all_word_cloud_filtered: all_word_cloud.select { |w| remove_entities_and_numbers w },
-                          retweets_word_cloud: r_dm.sorted_counts.select { |w| remove_entities_and_numbers w },
-                          webdocs_word_cloud: w_dm.sorted_counts, orig_word_explanations: o_dm.explanations
-                         })
-      @bio.word_cloud = @word_cloud
-      @bio.save
-    end
-
-    @bio.word_cloud
-  end
-    
   def set_app_tokens
     current_user ? current_user.latest_token_hash('twitter') : nil
   end
 
-  def crawled_web_documents(profile)
-    @word_cloud[:webdocs_count] = 0
-    WebArticle.where('web_articles.body is not null and twitter_profile_id = ?', profile.id).all.map do |article|
-      @word_cloud[:webdocs_count] += 1
-      article.body
-    end.join ' '
-  end
-
   def construct_messages
     # return nil if params is incorrect
-
     ret = nil
     if params[:uri] and (list = params.dig(:twitter_schedule, :messages))
       ret = list.map { |msg| "#{msg} #{params[:uri]}" }
     end
 
     ret
-  end
-
-  def remove_entities_and_numbers(w)
-    !(/\A\d+\Z/.match(w[0]) || /^\#/.match(w[0]) || /^\@/.match(w[0]))
   end
 end

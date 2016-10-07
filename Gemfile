@@ -22,12 +22,11 @@ gem 'thin'
 gem 'devise'
 gem 'js-routes'
 gem 'will_paginate'
-
-gem 'newrelic_rpm'
 gem 'mongoid',  git: 'https://github.com/mongodb/mongoid', tag: 'v6.0.0'
 gem 'pg'
 
 group :production do
+  gem 'newrelic_rpm'
   gem 'execjs'
 end
 
@@ -53,9 +52,10 @@ gem 'twitter'
 gem 'oauth'
 
 gem 'web-console', ">3.0", group: :development
+gem 'ruby-prof'
 
 group :development, :test do
-  # Use sqlite3 as the database for Active Record in dev and test envs  
+  # Use sqlite3 as the database for Active Record in dev and test envs
   gem 'pry'
   gem 'pry-remote'
   gem 'pry-stack_explorer'

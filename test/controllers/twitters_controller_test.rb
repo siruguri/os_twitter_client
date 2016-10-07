@@ -124,7 +124,9 @@ class TwittersControllerTest < ActionController::TestCase
   
   describe '#show' do
     it 'with profile stat' do
-      get :analyze, params: {handle: twitter_profiles(:twitter_profile_1).handle}
+      tp = twitter_profiles(:twitter_profile_1)
+      setup_mongo tp
+      get :analyze, params: {handle: tp.handle}
       
       assert_match /ee bee/, response.body
       assert_match /\d.*retrieved/i, response.body
@@ -251,12 +253,27 @@ class TwittersControllerTest < ActionController::TestCase
     end
   end
 
+  def teardown
+    TweetText.all.map &:delete
+  end
+  
   private
   def generate_new_tweets(profile, num)
     num.times.each do |i|
       t = Tweet.new tweet_id: "8810280192#{i}", tweeted_at: DateTime.now - 1.day - i.minutes,
                     tweet_details: ({entities: {}, text: 'hello'}), mesg: 'hello', twitter_id: profile.twitter_id
       t.save
+    end
+  end
+
+  def setup_mongo(tp)
+    tp.tweets.each do |t|
+      tt = TweetText.new tweet_id: t.tweet_id, retweeted_status: (t.tweet_details['retweeted_status']!=nil),
+                         full_text: t.tweet_details['full_text']
+      if tt.retweeted_status
+        tt.retweeted_text = t.tweet_details['retweeted_status']['full_text']
+      end
+      tt.save
     end
   end
 end

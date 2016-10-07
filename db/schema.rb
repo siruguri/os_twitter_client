@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160924000349) do
+ActiveRecord::Schema.define(version: 20161007052157) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -231,6 +231,7 @@ ActiveRecord::Schema.define(version: 20160924000349) do
     t.integer  "twitter_profile_id"
     t.boolean  "fetch_failed"
     t.index ["original_url"], name: "index_original_url_on_web_articles", unique: true, using: :btree
+    t.index ["twitter_profile_id"], name: "index_web_articles_on_twitter_profile_id", using: :btree
   end
 
 end

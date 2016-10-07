@@ -1,22 +1,17 @@
 class ProfileStat < ActiveRecord::Base
   belongs_to :twitter_profile
 
-  def stats_hash=(h)
-    stats_hash_v2 = h
-    stats_hash_v2
-  end
-  
-  def stats_hash
-    # Backwards compatibility
-    stats_hash_v2
-  end
-  
-  def self.update_all
+  def self.build_cache(twitter_id: nil)
     @update_recs = []
     @new_recs = []
 
     # Scheme to make stats update optimized
-    profile_data = TwitterProfile.pluck(:id, :twitter_id, :num_following)
+    profile_data =
+      if twitter_id.nil?
+        TwitterProfile.pluck(:id, :twitter_id, :num_following)
+      else
+        TwitterProfile.where(twitter_id: twitter_id).pluck(:id, :twitter_id, :num_following)
+      end 
 
     profile_data.each_slice(500) do |twitter_profile_array|
       # We take 100 profiles at a time, so that we can retrieve db records efficiently.
@@ -27,13 +22,11 @@ class ProfileStat < ActiveRecord::Base
       stats_recs_hash = ProfileStat.where(twitter_profile_id: id_array).all.group_by do |ps|
         ps.twitter_profile_id
       end
-      
       unproc_tweets.group_by { |tweet| tweet.twitter_id }.each do |twitter_id, tweets|
         # And update the recs hash for each profile in that list, which happens in memory
         profile_data = twitter_profile_array.select { |rec| rec[1] == twitter_id }.first
 
         # Because stats_rec_hash is simply a pointer, we can update its components efficiently.
-
         stats_rec = get_stat_rec stats_recs_hash, profile_data[0]
         if stats_rec.persisted?
           @update_recs << stats_rec
@@ -43,11 +36,16 @@ class ProfileStat < ActiveRecord::Base
 
         update_followers profile_data, stats_rec, save_later: true
         update_tweet_counts profile_data, tweets, stats_rec, save_later: true
+        Tweet.where('tweet_id in (?)', tweets.pluck(:tweet_id)).update_all processed: true
       end
     end
 
-    ProfileStat.import @new_recs
-    ProfileStat.import(@update_recs, on_duplicate_key_update: { conflict_target: :id, columns: [:stats_hash_v2]})
+    if @new_recs.size > 0
+      ProfileStat.import @new_recs
+    end
+    if @update_recs.size > 0
+      ProfileStat.import(@update_recs, on_duplicate_key_update: { conflict_target: :id, columns: [:stats_hash_v2]})
+    end
   end
 
   private

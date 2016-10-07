@@ -116,14 +116,13 @@ class TwitterClientWrapperTest < ActiveSupport::TestCase
         end
       end
 
+      assert_equal false, Tweet.order(created_at: :desc).first.processed
       assert_equal 2 + wa_ct, WebArticle.count
       assert_equal 'twitter', WebArticle.last.source
 
       # There's one scraper job for the full list of articles and none for the pagination
-      assert_equal 1, enqueued_jobs.select { |j| j[:job] == TwitterRedirectFetchJob }.size
+      assert_equal 0, enqueued_jobs.select { |j| j[:job] == TwitterRedirectFetchJob }.size
       assert_equal 0, enqueued_jobs.select { |j| j[:job] == TwitterFetcherJob }.size
-      
-      assert_equal 2, enqueued_jobs.first[:args][0].size
 
       assert_equal Tweet.last.user.id, WebArticle.last.twitter_profile_id
       refute Tweet.last.mesg.blank?
@@ -142,7 +141,7 @@ class TwitterClientWrapperTest < ActiveSupport::TestCase
       assert_equal 'twitter', WebArticle.last.source
 
       # There's one scraper job for the full list of articles and one for the pagination
-      assert_equal 1, enqueued_jobs.select { |j| j[:job] == TwitterRedirectFetchJob }.size
+      assert_equal 0, enqueued_jobs.select { |j| j[:job] == TwitterRedirectFetchJob }.size
       assert_equal 1, enqueued_jobs.select { |j| j[:job] == TwitterFetcherJob }.size
     end
 
@@ -159,7 +158,7 @@ class TwitterClientWrapperTest < ActiveSupport::TestCase
       assert_equal 'twitter', WebArticle.last.source
 
       # There's one scraper job for the full list of articles and one for the pagination
-      assert_equal 1, enqueued_jobs.select { |j| j[:job] == TwitterRedirectFetchJob }.size
+      assert_equal 0, enqueued_jobs.select { |j| j[:job] == TwitterRedirectFetchJob }.size
       assert_equal 1, enqueued_jobs.select { |j| j[:job] == TwitterFetcherJob }.size
     end
   end

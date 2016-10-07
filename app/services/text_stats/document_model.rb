@@ -37,25 +37,29 @@ module TextStats
       if term_size > 1
         @counts[1] ||= counts
       end
-      @counts["#{term_size}.#{opts[:unigram_boost]}"] ||=
+      if @counts["#{term_size}.#{opts[:unigram_boost]}"].nil?
+        memo = {}
         ngramify(term_size).group_by { |word| word }.
-        inject({}) do |memo, pair|
-        multiplier = (if opts[:unigram_boost].nil?
-                      1
-                     else
-                       terms = pair[0].split /\s+/
-                       terms.inject(1) { |memo, term| memo * Math.log(@counts[1][term]) }
-                      end)
+          each do |k, v|
+          multiplier = (if opts[:unigram_boost].nil?
+                        1
+                       else
+                         terms = k.split /\s+/
+                         terms.inject(1) { |memo, term| memo * Math.log(@counts[1][term]) }
+                        end)
 
-        multiplier *= (@universe.nil? ? 1 : 1.0/@universe.df(pair[0]))
-        
-        memo[pair[0]] = pair[1].size * multiplier
+          idf = (@universe.nil? ? 1 : 1.0/@universe.df(k))
+          multiplier *= idf
+          
+          memo[k] = v.size * multiplier
 
-        @explanations[pair[0] + ".idf"] = (@universe.nil? ? 1 : 1.0/@universe.df(pair[0]))
-        @explanations[pair[0] + ".tf"] = pair[1].size
-        
-        memo
+          @explanations[k + ".idf"] = idf
+          @explanations[k + ".tf"] = v.size
+        end
+        @counts["#{term_size}.#{opts[:unigram_boost]}"] = memo        
       end
+
+      @counts["#{term_size}.#{opts[:unigram_boost]}"]
     end
 
     def sorted_counts(term_size = 1, opts = {})

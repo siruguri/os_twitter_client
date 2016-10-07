@@ -13,7 +13,7 @@ development:
     default:
       database: os_twitter_client_dev
       hosts:
-        - <%= "#{ENV['MONGODB_HOST']}:27017" %>
+        - <%= "127.0.0.1:27017" %>
       options:
         # Change the default write concern. (default = { w: 1 })
         # write:
@@ -144,4 +144,4 @@ test:
       options:
         read:
           mode: :primary
-        max_pool_size: 1
+        max_pool_size: 2

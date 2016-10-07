@@ -14,7 +14,22 @@ class TwitterProfile < ActiveRecord::Base
   belongs_to :user
 
   after_create :create_stat
+
+  def webdocs_string
+    str = '' 
+    crawled_web_documents.find_each do |article|
+      str += article.body + ' '
+    end
+    
+    str
+  end
+
+  def crawled_web_documents
+    @docs ||=  WebArticle.where('web_articles.body is not null and twitter_profile_id = ?', self.id)
+  end
+  
   private
+
   def create_stat
     # blank profile stat for later batch processing
     p = ProfileStat.new twitter_profile_id: self.id

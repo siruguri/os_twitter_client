@@ -32,6 +32,11 @@ Now, let's see whom you are following, and what they are up to:
 * You should now see lots of jobs show up in your Sidekiq dashboard (path: `/sidekiq_ui/busy`)
 * In the drop down menu, click on "Feed". Read to your heart's content!
 
+## Stats
+
+* Go to `/document_analyses/task_page` and click on Update Profile Stats
+* After a bit, click on Index in the main menu
+
 ## Deploying
 
 Deploying is tricky because I don't want to document all the ways you can do it. Whatever you do though, you have to
