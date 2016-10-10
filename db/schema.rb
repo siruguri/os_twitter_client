@@ -119,7 +119,7 @@ ActiveRecord::Schema.define(version: 20161007052157) do
 
   create_table "profile_stats", force: :cascade do |t|
     t.integer  "twitter_profile_id"
-    t.jsonb    "stats_hash_v2",        default: "{}", null: false
+    t.jsonb    "stats_hash_v2",        default: {}, null: false
     t.datetime "most_recent_tweet_at"
     t.datetime "most_old_tweet_at"
     t.index ["stats_hash_v2"], name: "index_profile_stats_on_stats_hash_v2", using: :gin

@@ -1,3 +1,15 @@
+= render 'reply_svg'
+.overlay-grayout
+  .overlay
+    .x-box
+      X
+    .row.quote-entry
+      .col-xs-12
+        #quote-entry{"aria-labelledby" => "-label", contenteditable: true, spellcheck: true, role: "textbox", "aria-multiline" => true, dir: "ltr", "faria-autocomplete" => "list", "aria-expanded" => false}
+    .row.original-tweet
+      .action-button#retweet.action{'data-action-id' => 2}
+        Retweet
+
 - if @feed_list.size == 0 || @time_to_wait >= 0
   .paragraph
     .btn.feed-refresh.action{'data-action-id' => 1}
@@ -11,14 +23,15 @@
 - if @feed_list.size > 0
   %ol.tweet-list
     - @feed_list.each do |tweet, handle|
-      %ul.item
+      %ul.item{id: "tweet-#{tweet.tweet_id}", 'data-action-data' => tweet.tweet_id}
         .line-one
           .handle
             = link_to tweet.user.handle, 'https://twitter.com/' + tweet.user.handle
           .time
             = better_time(tweet)
-          .retweet-button.action{'data-action-id' => 2, 'data-action-data' => "#{tweet.tweet_id}"}
-            Retweet
+          .action-button#retweet-dialog
+            %svg
+              %use{x: '0', y: '0', "xlink:href" => '#reply', transform: 'scale(.04)'}
         - if tweet.is_retweeted
           - rt_handle = (tweet.tweet_details['retweeted_status']['user']['screen_name'] || tweet.tweet_details['entities']['user_mentions'][0]['screen_name'])
           .line-one
@@ -46,3 +59,4 @@
 
 - if @feed_list.size > 0
   = will_paginate @feed_list, page_links: false
+= render 'feed_footer'

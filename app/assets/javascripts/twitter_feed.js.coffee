@@ -38,7 +38,7 @@ twitter_feed_functions = ->
   countdown_timer = setInterval rotate_time, 1000, shown_time  
 
   # Get all the tweets that have been retweeted
-  page_tweet_id_list = $('.retweet-button').get()
+  page_tweet_id_list = $('.item').get()
   ids = page_tweet_id_list.map (e, i) ->
     $(e).data('action-data')
   unless ids.length == 0
@@ -48,7 +48,36 @@ twitter_feed_functions = ->
           page_tweet_id_list.forEach (e, i) ->
             if d.data.includes(parseInt($(e).data('action-data')))
               $(e).addClass 'disabled'
-              $(e).removeClass 'action'
     )
-  
+  # Make retweets open overlay
+  $('.action-button#retweet-dialog').click (evt) ->
+    tgt = $(this).closest('.item')
+    if tgt.hasClass('disabled')
+      evt.stopPropagation()
+      return false
+      
+    d = tgt.attr('id')
+    $('.overlay-grayout').show()
+    $('.overlay-grayout #retweet').attr('data-node-ref', d)
+    o = new Object
+    
+    o['tweet_id'] = tgt.data('action-data')
+    $('.overlay-grayout #retweet').data('action-data', o)
+    
+  $('.overlay-grayout #quote-entry').keyup (evt)->
+    btn = $('.overlay-grayout #retweet')
+    btn.data('action-data')['quote'] = $(evt.target).text().trim()
+    
+  $('.overlay-grayout #retweet').click (evt) ->
+    $('.overlay-grayout').hide()
+    true
+  $('.overlay-grayout .x-box').click (evt) ->
+    $('.overlay-grayout').hide()
+    
+  # Close overlay with ESC (escape) key
+  $('body').keyup (evt) ->
+    code = if (evt.keyCode) then evt.keyCode else evt.which
+    if code == 27 # ESC
+      $('.overlay-grayout').hide()
+    
 $(document).on('page:load ready', twitter_feed_functions)

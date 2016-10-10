@@ -14,27 +14,34 @@ shim_funcs = ->
     # A user's browser action might have removed this class subsequent to handler
     # attachment.
     #
-    target = $(evt.target)
+    target = $(this)
     if !(target.hasClass('action'))
       return null
       
     action_id = target.data('action-id')
     if typeof action_id != 'undefined'
       target.prepend spinner_div
+      if target.data('node-ref')
+        return_target = $('#' + target.data('node-ref'))
+      else
+        return_target = target            
+      
       xhr = $.ajax(
         type: 'POST'
         url: '/ajax_api'
         data:
-          payload: 'actions/trigger/' + action_id + '/' + $(evt.target).data('action-data')
+          payload: 'actions/trigger/' + action_id + '/' + JSON.stringify($(evt.target).data('action-data'))
       )
-      
       xhr.done((d, s, x) ->
           curtain_drop d.data
-          target.addClass 'disabled'
+
+          # If the action's results should be communicated to some other button which is where the effect should
+          # be observed... this is very complicated
+          return_target.addClass 'disabled'
       ).fail((d, s, x) ->
           # failure
           curtain_drop 'wtf'
-          target.addClass 'wtf'
+          return_target.addClass 'wtf'
       ).always( ->
         setTimeout( ->
             $(evt.target).find('.spinner').remove()

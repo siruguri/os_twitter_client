@@ -100,6 +100,10 @@ class ProfileStat < ActiveRecord::Base
     end
 
     new_hash = stat_rec.stats_hash_v2
+    ['total_tweets', 'retweet_aggregate', 'retweeted_mesgs', 'retweeted_avg'].each do |k|
+      new_hash[k] ||= 0
+    end
+    
     new_hash['total_tweets'] += tweets.count
     new_hash['retweet_aggregate'] += retweet_agg
     new_hash['retweeted_mesgs'] += retweeted_mesgs
