@@ -1,14 +1,21 @@
 = render 'reply_svg'
 .overlay-grayout
   .overlay
-    .x-box
-      X
-    .row.quote-entry
+    .row
+      .x-box
+        X
+    .row.blownup-image
       .col-xs-12
-        #quote-entry{"aria-labelledby" => "-label", contenteditable: true, spellcheck: true, role: "textbox", "aria-multiline" => true, dir: "ltr", "faria-autocomplete" => "list", "aria-expanded" => false}
-    .row.original-tweet
-      .action-button#retweet.action{'data-action-id' => 2}
-        Retweet
+        .image-container
+          %img.img-responsive{src: ''}
+        
+    .retweet-ui
+      .row.quote-entry
+        .col-xs-12
+          #quote-entry{"aria-labelledby" => "-label", contenteditable: true, spellcheck: true, role: "textbox", "aria-multiline" => true, dir: "ltr", "faria-autocomplete" => "list", "aria-expanded" => false}
+      .row.original-tweet
+        .action-button#retweet.action{'data-action-id' => 2}
+          Retweet
 
 - if @feed_list.size == 0 || @time_to_wait >= 0
   .paragraph
@@ -23,7 +30,7 @@
 - if @feed_list.size > 0
   %ol.tweet-list
     - @feed_list.each do |tweet, handle|
-      %ul.item{id: "tweet-#{tweet.tweet_id}", 'data-action-data' => tweet.tweet_id}
+      %ul.item{id: "tweet-#{tweet.tweet_id}", 'data-action-data' => tweet.tweet_id, 'data-overlay-div-class' => 'retweet-ui'}
         .line-one
           .handle
             = link_to tweet.user.handle, 'https://twitter.com/' + tweet.user.handle
@@ -44,7 +51,7 @@
             = better_urls(tweet.tweet_details['retweeted_status'])
           - if tweet.tweet_details['retweeted_status']['entities']['media']&.size.try(:>, 0)
             .tweet-media
-              %img{src: tweet.tweet_details['retweeted_status']['entities']['media'][0]['media_url_https']}
+              %img{src: tweet.tweet_details['retweeted_status']['entities']['media'][0]['media_url_https'], 'data-overlay-div-class' => 'blownup-image'}
         - elsif tweet.tweet_details['quoted_status']
           .mesg
             = tweet_text(tweet)
@@ -55,7 +62,7 @@
             = better_urls(tweet)
           - if tweet.has_media?
             .tweet-media
-              %img{src: tweet.tweet_details['entities']['media'][0]['media_url_https']}
+              %img{src: tweet.tweet_details['entities']['media'][0]['media_url_https'], 'data-overlay-div-class' => 'blownup-image'}
 
 - if @feed_list.size > 0
   = will_paginate @feed_list, page_links: false

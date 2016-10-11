@@ -145,6 +145,7 @@ button.urgent {
     }
     
     .tweet-media {
+      cursor: pointer;
       margin-top: 10px;
       img {
 	max-height: 260px;
@@ -220,13 +221,29 @@ button.urgent {
     background-color: white;
     border-radius: 5px;
     border: solid 1px black;
+
+    .blownup-image, .retweet-ui {
+      display: none;
+    }
+
+    .blownup-image {
+      background-color: $overlay-background;
+      .image-container {
+	display: flex;
+	padding: 10px 0;
+	img {
+	  max-height: 500px;
+	  margin: auto;
+	}
+      }
+    }
   }
 }
 
 
 .quote-entry {
   padding: 15px;
-  background-color: #E5E5FF;
+  background-color: $overlay-background;
   #quote-entry {
     padding: 8px 10px;
     display: block;

@@ -49,15 +49,28 @@ twitter_feed_functions = ->
             if d.data.includes(parseInt($(e).data('action-data')))
               $(e).addClass 'disabled'
     )
+
+  # Show blown up images
+  $('.tweet-media img').click (evt) ->
+    tgt = $(event.target)
+    overlay_div = $('.' + tgt.data('overlay-div-class'))
+    $('.overlay-grayout').show()
+    overlay_div.find('img').attr('src', tgt.attr('src'))
+    overlay_div.show()
+
   # Make retweets open overlay
   $('.action-button#retweet-dialog').click (evt) ->
     tgt = $(this).closest('.item')
+    overlay_div = tgt.data('overlay-div-class')
+    
     if tgt.hasClass('disabled')
       evt.stopPropagation()
       return false
       
     d = tgt.attr('id')
     $('.overlay-grayout').show()
+    $('.' + overlay_div).show()
+    
     $('.overlay-grayout #retweet').attr('data-node-ref', d)
     o = new Object
     
