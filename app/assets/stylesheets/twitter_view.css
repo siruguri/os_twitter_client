@@ -213,7 +213,13 @@ button.urgent {
     overflow: hidden;
     position: relative;
     top: 100px;
-    margin: 0 auto;
+    @media(min-width: $mobile-breakpoint) {
+      margin: 0 auto;
+    }
+    @media(max-width: $mobile-breakpoint) {
+      margin: 15px 0;
+    }
+    
     width: 85%;
     min-height: 400px;
 
@@ -227,6 +233,10 @@ button.urgent {
     }
 
     .blownup-image {
+      @media(max-width: $mobile-breakpoint) {
+	margin: 0;
+      }
+      
       background-color: $overlay-background;
       .image-container {
 	display: flex;
