@@ -91,7 +91,16 @@ def set_net_stubs
     with(:body => {"screen_name"=>"twitter_handle", "status"=>nil},
          :headers => single_token_headers).
     to_return(:status => 200, :body => valid_twitter_response(:tweet_success))
-  
+
+  # Get/fetch one tweet
+  stub_request(:get, "https://api.twitter.com/1.1/statuses/show/tweetisthere.json").
+    with(headers: single_token_headers).
+    to_return(status: 200, body: valid_twitter_response(:fetch_tweet_available))
+
+  stub_request(:get, "https://api.twitter.com/1.1/statuses/show/tweetistherethathasretweet.json").
+    with(headers: single_token_headers).
+    to_return(status: 200, body: valid_twitter_response(:fetch_tweet_available_withretw))
+              
   # Feed
   stub_request(:get, "https://api.twitter.com/1.1/friends/ids.json?cursor=-1&screen_name=twitter_handle").
     with(headers: single_token_headers).    

@@ -29,16 +29,17 @@
     .secs
 - if @feed_list.size > 0
   %ol.tweet-list
-    - @feed_list.each do |tweet, handle|
-      %ul.item{id: "tweet-#{tweet.tweet_id}", 'data-action-data' => tweet.tweet_id, 'data-overlay-div-class' => 'retweet-ui'}
+    - @feed_list.each do |tweet|
+      %ul.item{id: "tweet-#{tweet.tweet_id}", 'data-action-data' => tweet.tweet_id, 'data-overlay-div-class' => 'retweet-ui', "data-handle" => tweet.user.handle}
         .line-one
           .handle
             = link_to tweet.user.handle, 'https://twitter.com/' + tweet.user.handle
           .time
             = better_time(tweet)
-          .action-button#retweet-dialog
+          .action-button.nonicon#retweet-dialog
             %svg
               %use{x: '0', y: '0', "xlink:href" => '#reply', transform: 'scale(.04)'}
+          .action-button.arrow-right.icon#goto-orig
         - if tweet.is_retweeted
           - rt_handle = (tweet.tweet_details['retweeted_status']['user']['screen_name'] || tweet.tweet_details['entities']['user_mentions'][0]['screen_name'])
           .line-one
@@ -52,6 +53,14 @@
           - if tweet.tweet_details['retweeted_status']['entities']['media']&.size.try(:>, 0)
             .tweet-media
               %img{src: tweet.tweet_details['retweeted_status']['entities']['media'][0]['media_url_https'], 'data-overlay-div-class' => 'blownup-image'}
+          - if tweet.tweet_details['retweeted_status']['quoted_status'].present?
+            .quoted-mesg
+              .line-one
+                .handle
+                  = tweet.tweet_details['retweeted_status']['quoted_status']['user']['screen_name']
+              .line-two
+                .mesg
+                  = better_urls(tweet.tweet_details['retweeted_status']['quoted_status'])
         - elsif tweet.tweet_details['quoted_status']
           .mesg
             = tweet_text(tweet)

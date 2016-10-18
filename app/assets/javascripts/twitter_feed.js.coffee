@@ -58,6 +58,14 @@ twitter_feed_functions = ->
     overlay_div.find('img').attr('src', tgt.attr('src'))
     overlay_div.show()
 
+  # Go to original
+  $('.action-button#goto-orig').click (evt) ->
+    tgt = $(this).closest('.item')
+    id = tgt.data('action-data')
+    handle = tgt.data('handle')
+    url = 'https://www.twitter.com/' + handle + '/status/' + id
+    window.open(url, '_blank')
+    
   # Make retweets open overlay
   $('.action-button#retweet-dialog').click (evt) ->
     tgt = $(this).closest('.item')

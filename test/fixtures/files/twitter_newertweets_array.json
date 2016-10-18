@@ -236,7 +236,6 @@
 	    "full_text": "this is the full text of a retweeted_status"
 	},
 	"quoted_status": {
-	    "full_text": "this is the full text of a quoted_status",
 	    "user": {
 		"id": 10981029577,
 		"notincluded": "excempt"

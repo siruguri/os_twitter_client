@@ -128,6 +128,43 @@ class TwitterClientWrapper
   def tweet!(handle_rec, opts)
     payload = post(handle_rec, :tweet, opts)
   end
+
+  def fetch_status!(opts)
+    # Returns a value that denotes whether the requested status was found (1), not found (0) or was
+    # blocked (-1). This is used in case the job was started as a follow-up to a tweet that had a quoted
+    # tweet.
+    
+    payload = opts[:tweet_id] ?
+                payload = get(nil, :fetch_status, opts) :
+                {}
+
+    if payload[:errors] =~ /blocked/
+      return -1
+    elsif payload[:data]
+      d = payload[:data]
+      is_retweeted = 
+          if d[:retweeted_status].present?
+            d[:retweeted_status][:full_text].gsub! twitter_regex, ''
+            true
+          else
+            false
+          end
+      t = Tweet.new(tweet_details: d, tweet_id: d[:id], mesg: d[:full_text], processed: false,
+                    tweeted_at: d[:created_at], is_retweeted: is_retweeted)
+      handle = d[:user][:screen_name]
+      rec = TwitterProfile.find_or_initialize_by handle: handle
+      unless rec.persisted?
+        rec.twitter_id = d[:user][:id]
+        rec.save
+      end
+      t.user = rec
+      t.save
+      
+      return 1
+    else
+      return 0
+    end
+  end
   
   def fetch_followers!(handle_rec)
     unless (last_req = TwitterRequestRecord.where(user: handle_rec, request_type: 'follower_ids')).empty?
@@ -267,11 +304,13 @@ class TwitterClientWrapper
       all_web_articles = []      
       data.each do |tweet|
         # Scan and store all the URLs into web article models; remove them from the tweets
-        is_retweeted = false
-        unless tweet[:retweeted_status].nil?
-          tweet[:retweeted_status][:full_text].gsub! twitter_regex, ''
-          is_retweeted = true
-        end
+        is_retweeted = 
+          if tweet[:retweeted_status].present?
+            tweet[:retweeted_status][:full_text].gsub! twitter_regex, ''
+            true
+          else
+            false
+          end
 
         begin
           orig_user_info = extract_user_info tweet
@@ -323,17 +362,24 @@ class TwitterClientWrapper
   end
   
   def base_request(method, handle_rec, command = :profile, opts = {})
-    return nil if (handle_rec.user.nil? and command == :account_settings) or
-      (handle_rec.handle.nil? and handle_rec.twitter_id.nil? and
-       [:follower_ids, :profile, :tweets, :following_ids].include? command)
+    return nil if (handle_rec.nil? and command != :fetch_status) or
+      (handle_rec.present? && (
+         (handle_rec.user.nil? and command == :account_settings) or
+         (handle_rec.handle.nil? and handle_rec.twitter_id.nil? and
+          [:follower_ids, :profile, :tweets, :following_ids].include? command)
+       ))
 
-    if handle_rec.handle.present?
-      twitter_pk_hash = {screen_name: handle_rec.handle}
-    elsif handle_rec.twitter_id.present?
-      twitter_pk_hash = {user_id: handle_rec.twitter_id}
+    unless handle_rec.nil?
+      if handle_rec.handle.present?
+        twitter_pk_hash = {screen_name: handle_rec.handle}
+      elsif handle_rec.twitter_id.present?
+        twitter_pk_hash = {user_id: handle_rec.twitter_id}
+      end
     end
-
+    
     case command
+    when :fetch_status
+      req = Twitter::REST::Request.new(@client, method, "/1.1/statuses/show/#{opts[:tweet_id]}.json")
     when :retweet
       return nil unless opts[:tweet_id]
       req = Twitter::REST::Request.new(@client, method, "/1.1/statuses/retweet/#{opts[:tweet_id]}.json")
@@ -376,7 +422,7 @@ class TwitterClientWrapper
     begin
       response = req.perform
     rescue Twitter::Error, Twitter::Error::NotFound => e
-      errors = {errors: "handle db id: #{handle_rec.id}, error: #{e.message}"}
+      errors = {errors: "handle db id: #{handle_rec&.id}, error: #{e.message}"}
     else
       body =
         if response.is_a? Hash and response.keys.size == 2 and response.keys.include?(:headers)
@@ -398,7 +444,7 @@ class TwitterClientWrapper
     c = TwitterRequestRecord.create request_type: command, cursor: cursor, status: errors.empty?,
                                 status_message: errors.empty? ? '' : errors[:errors],
                                 request_for: config[:access_token],
-                                handle: (command == :account_settings ? body[:screen_name] : handle_rec.handle)
+                                handle: (command == :account_settings ? body[:screen_name] : handle_rec&.handle)
 
     if /not authorized/i.match c.status_message
       handle_rec.update_attributes protected: true

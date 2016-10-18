@@ -15,4 +15,10 @@ class WebArticleTest < ActiveSupport::TestCase
   test 'nil body in web article works for bigrams' do
     assert_equal [], web_articles(:nil_body).top_grams('raw')
   end
+
+  test 'unigram boosted' do
+    # Just for the sake of coverage
+    k = [{:id=>0, :name=>"value memo"}, {:id=>1, :name=>"initial value"}, {:id=>2, :name=>"return value"}, {:id=>3, :name=>"accumulator value"}, {:id=>4, :name=>"final value"}]
+    assert_equal k, web_articles(:web_article_3).top_grams('unigram_boosted')
+  end
 end

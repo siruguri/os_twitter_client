@@ -30,6 +30,27 @@ class TwitterClientWrapperTest < ActiveSupport::TestCase
     assert_equal 1, TwitterRequestRecord.where('created_at >= ? and ran_limit = ?', now, true).count
   end
 
+  describe "fetching tweets" do
+    it 'works when tweet has retweet' do
+      assert_difference('TwitterProfile.count') do
+        @c.rate_limited do
+          fetch_status!({tweet_id: 'tweetistherethathasretweet'})
+        end
+      end
+      assert Tweet.last.is_retweeted      
+    end
+    
+    it 'works when tweet is original' do
+      assert_difference('TwitterProfile.count') do
+        @c.rate_limited do
+          fetch_status!({tweet_id: 'tweetisthere'})
+        end
+
+        refute Tweet.last.is_retweeted
+      end
+    end
+  end
+  
   test 'followers' do
     h = @handle
     @c.rate_limited do

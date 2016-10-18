@@ -50,7 +50,9 @@ module TwitterHelper
     str = mesg_str.gsub(/http.?:\/\/t\.co\/[^\s]+/, '')
     unless entities_hash['urls'].nil?
       str += entities_hash['urls'].map do |u|
-        "(<a href='#{u['expanded_url']}'>#{u['expanded_url']}</a>)"
+        unless u['expanded_url'] =~ /twitter.com\//
+          "(<a href='#{u['expanded_url']}'>#{u['expanded_url']}</a>)"
+        end
       end.join ' '
     end
     

@@ -108,16 +108,17 @@ button.urgent {
       font-size: 13px;
       line-height: 20px;
       .action-button {
-	height: 25px;
-	width: 25px;
 	color: $general-gray;
 	position: relative;
 	float: right;
 	margin: 5px 10px 0 0;
-	padding: 3px;
-	font-size: 0.9em;
 	cursor: pointer;
-
+	&.nonicon {
+	  height: 25px;
+	  width: 25px;
+	  padding: 3px;
+	  font-size: 0.9em;
+	}
 	svg {
 	  fill: currentColor;
 	}
@@ -279,4 +280,11 @@ button.urgent {
     margin: 10px 35px 0 0;
     text-align: center;
   }
+}
+
+.quoted-mesg {
+  border: solid 1px $general-gray;
+  padding: 5px;
+  border-radius: 5px;
+  margin-top: 5px;
 }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161007052157) do
+ActiveRecord::Schema.define(version: 20161017195705) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -74,9 +74,11 @@ ActiveRecord::Schema.define(version: 20161007052157) do
   end
 
   create_table "configs", force: :cascade do |t|
-    t.string "config_key"
-    t.text   "config_value"
-    t.string "config_value_type"
+    t.string   "config_key"
+    t.text     "config_value"
+    t.string   "config_value_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "document_universes", force: :cascade do |t|

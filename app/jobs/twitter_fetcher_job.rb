@@ -10,6 +10,8 @@ class TwitterFetcherJob < ActiveJob::Base
     else
       TwitterClientWrapper.new(opts).rate_limited do
         case command
+        when 'fetch_status'
+          fetch_status! opts
         when 'retweet'
           retweet! handle_rec, opts
           r = RetweetRecord.new tweet_id: opts[:tweet_id], user_id: handle_rec.user.id

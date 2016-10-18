@@ -46,6 +46,13 @@ class TwitterFetcherJobTest < ActiveSupport::TestCase
       end
       assert_equal 239413592287818484, Tweet.last.tweet_id      
     end
+
+    it 'tramples bookmark' do
+      key = "#{users(:user_1)&.email}.twitter.bookmark"
+      c = Config.find_or_create_by config_key: key, config_value: '13'
+      TwitterFetcherJob.perform_now twitter_profiles(:no_id_profile), 'tweets', refresh_bookmark: key
+      assert_equal '1', Config.find_by_config_key(key).config_value
+    end
   end
 
   test 'follower bios' do

@@ -9,6 +9,9 @@ module TextStatisticsAnalyzer
     end
 
     def top_grams(sort_by_function_name)
+      # Some day, I should figure out what this code is trying to do... I know the idea was to count n-grams, and then score
+      # them based on the counts of the terms in the n-grams.
+      
       @gram_counts = {}
       @bigram_counts = {}
       
