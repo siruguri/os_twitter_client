@@ -20,7 +20,8 @@ class TwitterFetcherJob < ActiveJob::Base
           tweet! handle_rec, opts
         when 'followers'
           # Will not paginate by default; pick cursor as a whitelisted option
-          fetch_followers! handle_rec, cursor: opts[:cursor], pagination: (opts[:pagination] || false)
+          fetch_followers! handle_rec, cursor: opts[:cursor], pagination: (opts[:pagination] || false),
+                           token: opts[:token]
           # Schedule a job now to get bios of all followers
         when 'my_friends'
           fetch_my_friends! handle_rec

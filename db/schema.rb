@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161019164918) do
+ActiveRecord::Schema.define(version: 20161019225434) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -88,8 +88,10 @@ ActiveRecord::Schema.define(version: 20161019164918) do
   end
 
   create_table "graph_connections", force: :cascade do |t|
-    t.integer "leader_id"
-    t.integer "follower_id"
+    t.integer  "leader_id"
+    t.integer  "follower_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.index ["leader_id"], name: "index_leader_id_on_profile_followers", using: :btree
   end
 

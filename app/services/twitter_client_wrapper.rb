@@ -79,8 +79,6 @@ class TwitterClientWrapper
         article_list.map { |new_url| WebArticle.new(original_url: new_url, source: 'twitter', twitter_profile: handle) }
       )
       ActiveRecord::Base.logger.level = 0      
-      
-      #TwitterRedirectFetchJob.perform_later article_list
     end
   end
   
@@ -214,7 +212,8 @@ class TwitterClientWrapper
 
       # Pagination
       if opts[:pagination]
-        TwitterFetcherJob.perform_later handle_rec, 'followers', pagination: true, cursor: payload[:data][:next_cursor]
+        TwitterFetcherJob.perform_later handle_rec, 'followers',
+                                        ({cursor: payload[:data][:next_cursor]}).merge(opts)
       end
     end
   end
