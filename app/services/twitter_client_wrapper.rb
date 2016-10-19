@@ -187,11 +187,10 @@ class TwitterClientWrapper
 
     payload = get(handle_rec, :follower_ids, {cursor: cursor, count: 5000})
     if payload[:data] != ''
-      existing_twitter_ids = handle_rec.followers.pluck :twitter_id
-      
-      ts = TwitterProfile.where(twitter_id: payload[:data][:ids]).all
-      ts.each do |t|
-        handle_rec.followers << t unless handle_rec.followers.include? t
+      ts_id_pairs = TwitterProfile.where(twitter_id: payload[:data][:ids]).pluck(:id, :twitter_id)
+      existing_twitter_ids = ts_id_pairs.map { |p| p[1]} 
+      ts_id_pairs.each do |pair|
+        GraphConnection.find_or_create_by leader_id: handle_rec.id, follower_id: pair[0]
       end
 
       new_ids = payload[:data][:ids] - existing_twitter_ids
@@ -201,11 +200,17 @@ class TwitterClientWrapper
         stale_ids = handle_rec.followers.where('twitter_id not in (?)', payload[:data][:ids]).pluck :id
         GraphConnection.where('leader_id = ? and follower_id in (?)', handle_rec.id, stale_ids).map &:delete
       end
-      
+
+      profs = []; conns = []
       new_ids.each do |id|
         t = TwitterProfile.new(twitter_id: id, protected: false)
-        handle_rec.followers << t
+        profs << t
       end
+      TwitterProfile.import profs
+      profs.each do |prof|
+        conns << GraphConnection.new(leader_id: handle_rec.id, follower_id: prof.id)
+      end
+      GraphConnection.import conns
 
       # Pagination
       if opts[:pagination]
