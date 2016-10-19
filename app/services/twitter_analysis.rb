@@ -68,7 +68,8 @@ module TwitterAnalysis
     a_dm = TextStats::DocumentModel.new(doc_sets[:all_doc], twitter: true)
     r_dm = TextStats::DocumentModel.new(doc_sets[:retweet_doc], twitter: true)
     w_dm = TextStats::DocumentModel.new(bio.webdocs_string, as_html: true)
-      
+
+    # The universes can be nil, that's ok.
     o_dm.universe = document_universe
     a_dm.universe = document_universe
     r_dm.universe = document_universe

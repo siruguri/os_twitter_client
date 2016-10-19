@@ -191,11 +191,11 @@ class TwittersController < ApplicationController
     newest_tweet_enter_date = (lt = @latest_tweets&.first) ? lt.tweeted_at : nil
     @been_a_while = lt.nil? || ((DateTime.now - 24.hours) > newest_tweet_enter_date)
 
-    unless @latest_tweets.count == 0 or DocumentUniverse.count == 0
+    unless @latest_tweets.count == 0
       if @bio.word_cloud.empty? or params[:word_cloud] == '1'
         idlist = @latest_tweets.pluck(:tweet_id)        
         @bio.word_cloud = word_cloud(tweets: TweetText.where({tweet_id: {"$in" => idlist}}),
-                                     document_universe: DocumentUniverse.last.universe, bio: @bio, use_mongo: true)
+                                     document_universe: DocumentUniverse.last&.universe, bio: @bio, use_mongo: true)
         @bio.save
       end
       @word_cloud = @bio.word_cloud
@@ -227,6 +227,10 @@ class TwittersController < ApplicationController
 
     # Set bio if it didn't come from the logged in user above.
     @bio ||= TwitterProfile.where('lower(handle) = ?', "#{params[:handle].downcase}").first
+    if @bio.nil? && params[:commit]=~/get bio/i
+      @bio = TwitterProfile.create handle: params[:handle].downcase
+    end
+    
     (redirect_to new_user_session_path and return) if @bio.nil?
 
     if @bio.twitter_id.present?

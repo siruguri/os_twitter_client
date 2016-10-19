@@ -62,9 +62,6 @@ class TwittersControllerTest < ActionController::TestCase
   end
 
   test 'errors' do
-    post :twitter_call, params: {commit: "Get bio", handle: 'nosuch_handle'}
-    assert_redirected_to new_user_session_path
-
     post :twitter_call, params: {commit: 'Hack it', handle: twitter_profiles(:twitter_profile_1).handle}
     assert_redirected_to twitter_input_handle_path
 
