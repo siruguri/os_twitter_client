@@ -29,7 +29,7 @@ class TwitterClientWrapper
     response = instance_eval("#{command}(handle_rec, opts)")    
   end
     
-  def rate_limited(&block)
+  def rate_limited(command = '', &block)
     curr_time = Time.now
     if config[:access_token].nil?
       tok = Rails.application.secrets.twitter_single_app_access_token
@@ -38,8 +38,9 @@ class TwitterClientWrapper
     end
       
     ct = TwitterRequestRecord.where('created_at > ? and request_for = ?', curr_time - 1.minute, tok).count
-    
-    if ct >= 12
+
+    # Diff commands have different rate limits! Only followers is currently accounted for.
+    if command == 'followers' && ct > 0 || ct >= 12
       t = TwitterRequestRecord.last
       t.ran_limit = true
       t.save

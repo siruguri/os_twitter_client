@@ -8,7 +8,7 @@ class TwitterFetcherJob < ActiveJob::Base
         TwitterFetcherJob.perform_later f, 'bio', opts
       end
     else
-      TwitterClientWrapper.new(opts).rate_limited do
+      TwitterClientWrapper.new(opts).rate_limited(command) do
         case command
         when 'fetch_status'
           fetch_status! opts

@@ -16,19 +16,32 @@ class TwitterClientWrapperTest < ActiveSupport::TestCase
     end
   end
   
-  test 'rate limiting works' do
-    now = Time.now
-    
-    (1..13).each do |t|
-      h = @handle
-      @c.rate_limited do
-        fetch_profile! h
+  describe 'rate limiting works' do
+    it 'works in general' do
+      now = Time.now
+      (1..13).each do |t|
+        h = @handle
+        @c.rate_limited('bio') do
+          fetch_profile! h
+        end
       end
-    end
 
-    # That should have set off the rate limiting exactly once.
-    assert_equal 1, TwitterRequestRecord.where('created_at >= ? and ran_limit = ?', now, true).count
-  end
+      # That should have set off the rate limiting exactly once.
+      assert_equal 1, TwitterRequestRecord.where('created_at >= ? and ran_limit = ?', now, true).count
+    end
+    it 'works for followers at rate of 1/min' do
+      now = Time.now
+      (1..2).each do |t|
+        h = @handle
+        @c.rate_limited('followers') do
+          fetch_profile! h
+        end
+      end
+
+      # That should have set off the rate limiting exactly once.
+      assert_equal 1, TwitterRequestRecord.where('created_at >= ? and ran_limit = ?', now, true).count
+    end
+  end    
 
   describe "fetching tweets" do
     it 'works when tweet has retweet' do
