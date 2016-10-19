@@ -166,14 +166,25 @@ class TwitterClientWrapper
     end
   end
   
-  def fetch_followers!(handle_rec)
-    unless (last_req = TwitterRequestRecord.where(user: handle_rec, request_type: 'follower_ids')).empty?
-      cursor = last_req[0].cursor
-    else
-      cursor = -1
-    end
-    
-    payload = get(handle_rec, :follower_ids, {cursor: cursor})
+  def fetch_followers!(handle_rec, opts = {})
+    opts[:pagination] ||= false
+    cursor =
+      if opts[:pagination] == true
+        if opts[:cursor].blank?
+          last_req = TwitterRequestRecord.where(user: handle_rec, request_type: 'follower_ids').order(created_at: :desc).first
+          if last_req
+            last_req.cursor
+          else
+            -1
+          end
+        else
+          opts[:cursor]
+        end
+      else
+        -1
+      end
+
+    payload = get(handle_rec, :follower_ids, {cursor: cursor, count: 5000})
     if payload[:data] != ''
       existing_twitter_ids = handle_rec.followers.pluck :twitter_id
       
@@ -182,14 +193,22 @@ class TwitterClientWrapper
         handle_rec.followers << t unless handle_rec.followers.include? t
       end
 
-      stale_ids = handle_rec.followers.where('twitter_id not in (?)', payload[:data][:ids]).pluck :id
       new_ids = payload[:data][:ids] - existing_twitter_ids
 
-      # Remove stale graph connections
-      GraphConnection.where('leader_id = ? and follower_id in (?)', handle_rec.id, stale_ids).map &:delete
+      # Remove stale graph connections, but not if we are paginating...
+      if opts[:pagination] == false
+        stale_ids = handle_rec.followers.where('twitter_id not in (?)', payload[:data][:ids]).pluck :id
+        GraphConnection.where('leader_id = ? and follower_id in (?)', handle_rec.id, stale_ids).map &:delete
+      end
+      
       new_ids.each do |id|
         t = TwitterProfile.new(twitter_id: id, protected: false)
         handle_rec.followers << t
+      end
+
+      # Pagination
+      if opts[:pagination]
+        TwitterFetcherJob.perform_later handle_rec, 'followers', pagination: true, cursor: payload[:data][:next_cursor]
       end
     end
   end
@@ -347,7 +366,7 @@ class TwitterClientWrapper
             {}
           end
         next_opts = ({pagination: true, direction: 'older', relative_id: new_tweets.last.tweet_id}).merge pass_since
-        TwitterFetcherJob.perform_later(handle_rec, 'tweets', next_opts)
+        TwitterFetcherJob.perform_later handle_rec, 'tweets', next_opts
       end
     end
 
@@ -394,7 +413,7 @@ class TwitterClientWrapper
       req = Twitter::REST::Request.new(@client, method, "/1.1/account/settings.json")
     when :follower_ids
       req = Twitter::REST::Request.new(@client, method, "/1.1/followers/ids.json",
-                                       twitter_pk_hash.merge(opts.select { |k, v| k == :cursor }))
+                                       twitter_pk_hash.merge(opts.select { |k, v| k == :cursor || k == :count}))
     when :following_ids
       req = Twitter::REST::Request.new(@client, method, "/1.1/friends/ids.json",
                                        twitter_pk_hash.merge(opts.select { |k, v| k == :cursor }))
@@ -415,7 +434,7 @@ class TwitterClientWrapper
     end
 
     status = true
-    cursor = -1
+    cursor = prev_cursor = -1
     errors = {}
     body = ''
     
@@ -438,13 +457,15 @@ class TwitterClientWrapper
         cursor = body.blank? ? opts[:limit_id] : body.last[:id]
       when :follower_ids
         cursor = body[:next_cursor]
+        prev_cursor = body[:previous_cursor]
       end
     end
 
-    c = TwitterRequestRecord.create request_type: command, cursor: cursor, status: errors.empty?,
-                                status_message: errors.empty? ? '' : errors[:errors],
-                                request_for: config[:access_token],
-                                handle: (command == :account_settings ? body[:screen_name] : handle_rec&.handle)
+    c = TwitterRequestRecord.create request_type: command, prev_cursor: prev_cursor,
+                                    cursor: cursor, status: errors.empty?,
+                                    status_message: errors.empty? ? '' : errors[:errors],
+                                    request_for: config[:access_token],
+                                    handle: (command == :account_settings ? body[:screen_name] : handle_rec&.handle)
 
     if /not authorized/i.match c.status_message
       handle_rec.update_attributes protected: true

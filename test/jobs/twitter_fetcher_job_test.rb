@@ -65,10 +65,16 @@ class TwitterFetcherJobTest < ActiveSupport::TestCase
   end
     
   describe ":followers" do
+    before do
+      @queue_size = enqueued_jobs.size
+    end
+    
     it 'works without existing followers' do
       assert_difference('TwitterProfile.count', 2) do
         TwitterFetcherJob.perform_now twitter_profiles(:twitter_profile_1), 'followers'
       end
+
+      assert_equal @queue_size, enqueued_jobs.size
       t = TwitterProfile.last
       assert_equal 8400, t.twitter_id
       
@@ -78,17 +84,37 @@ class TwitterFetcherJobTest < ActiveSupport::TestCase
       assert_equal "follower_ids", TwitterRequestRecord.last.request_type
     end
     
-    it 'works with existing followers' do
+    it 'works without existing followers with pagination opt' do
+      assert_difference('TwitterProfile.count', 2) do
+        TwitterFetcherJob.perform_now twitter_profiles(:twitter_profile_1), 'followers', pagination: true
+      end
+      assert_equal 1 + @queue_size, enqueued_jobs.size      
+    end
+    
+    it 'works with existing followers with pagination' do
       assert_equal 1, GraphConnection.where(leader_id: twitter_profiles(:existing_followers).id,
                                             follower_id: twitter_profiles(:just_follower_1).id).count
 
-      prev_q_size = enqueued_jobs.size
       assert_difference('TwitterProfile.count', 3) do
+        TwitterFetcherJob.perform_now twitter_profiles(:existing_followers), 'followers', pagination: true
+      end
+
+      # pagination preserves old connections
+      assert_equal 1 + @queue_size, enqueued_jobs.size      
+      assert_equal 1, GraphConnection.where(follower_id: TwitterProfile.find_by_handle('just_follower_1').id).count
+    end
+    
+    it 'works with existing followers without pagination' do
+      assert_equal 1, GraphConnection.where(leader_id: twitter_profiles(:existing_followers).id,
+                                            follower_id: twitter_profiles(:just_follower_1).id).count
+
+      # see fixture file for count
+      assert_difference('TwitterProfile.count', 4) do
         TwitterFetcherJob.perform_now twitter_profiles(:existing_followers), 'followers'
       end
 
-      # new followers will get new follower_bios jobs
-      assert_equal 1 + prev_q_size, enqueued_jobs.size
+      # pagination==false kills old connections
+      assert_equal @queue_size, enqueued_jobs.size      
       assert_equal 0, GraphConnection.where(follower_id: TwitterProfile.find_by_handle('just_follower_1').id).count
     end
   end

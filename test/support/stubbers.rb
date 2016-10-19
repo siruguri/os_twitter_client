@@ -110,13 +110,17 @@ def set_net_stubs
     to_return(status: 200, body: valid_twitter_response(:my_feed_fresh))
 
   # Followers
-  stub_request(:get, "https://api.twitter.com/1.1/followers/ids.json?cursor=-1&screen_name=twitter_handle").
+  stub_request(:get, "https://api.twitter.com/1.1/followers/ids.json?count=5000&cursor=-1&screen_name=twitter_handle").
     with(headers: single_token_headers).    
     to_return(status: 200, body: valid_twitter_response(:followers))
 
-  stub_request(:get, "https://api.twitter.com/1.1/followers/ids.json?cursor=65065&screen_name=existing_followers_profile").
+  stub_request(:get, "https://api.twitter.com/1.1/followers/ids.json?count=5000&cursor=65065&screen_name=existing_followers_profile").
     with(headers: single_token_headers).    
     to_return(status: 200, body: valid_twitter_response(:followers_with_cursor))
+
+  stub_request(:get, "https://api.twitter.com/1.1/followers/ids.json?count=5000&cursor=-1&screen_name=existing_followers_profile").
+    with(headers: single_token_headers).    
+    to_return(status: 200, body: valid_twitter_response(:followers_with_cursor_pagination_false))
 
   # Account settings
   stub_request(:get, "https://api.twitter.com/1.1/account/settings.json").

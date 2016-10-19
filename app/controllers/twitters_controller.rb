@@ -249,7 +249,7 @@ class TwittersController < ApplicationController
   end
   
   def followers
-    TwitterFetcherJob.perform_later @bio, 'followers', token: @app_token
+    TwitterFetcherJob.perform_later @bio, 'followers', token: @app_token, pagination: true
   end
   def bio(t)
     TwitterFetcherJob.perform_later t, 'bio', token: @app_token
