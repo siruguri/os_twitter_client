@@ -211,8 +211,8 @@ class TwitterClientWrapper
       GraphConnection.import conns
 
       # Pagination
-      if opts[:pagination]
-        # Make sure the new cursor is used not the old one.
+      if opts[:pagination] and payload[:data][:next_cursor] != 0
+        # Make sure the new cursor is used, not the old one.
         TwitterFetcherJob.perform_later handle_rec, 'followers',
                                         (opts).merge({cursor: payload[:data][:next_cursor]})
       end
