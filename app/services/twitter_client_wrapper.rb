@@ -212,8 +212,9 @@ class TwitterClientWrapper
 
       # Pagination
       if opts[:pagination]
+        # Make sure the new cursor is used not the old one.
         TwitterFetcherJob.perform_later handle_rec, 'followers',
-                                        ({cursor: payload[:data][:next_cursor]}).merge(opts)
+                                        (opts).merge({cursor: payload[:data][:next_cursor]})
       end
     end
   end
