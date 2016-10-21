@@ -204,6 +204,7 @@ class TwitterClientWrapper
         t = TwitterProfile.new(twitter_id: id, protected: false)
         profs << t
       end
+
       TwitterProfile.import profs
       profs.each do |prof|
         conns << GraphConnection.new(leader_id: handle_rec.id, follower_id: prof.id)

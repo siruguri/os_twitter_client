@@ -93,3 +93,18 @@ tp_assign_to_2:
   twitter_id: 123998
   word_cloud: <%= ({}).to_yaml.inspect %>
 
+ld_blank_folls:
+  <<: *DEFAULTS
+  handle: ld_blank_folls
+  twitter_id: 12874901
+  word_cloud: <%= ({}).to_yaml.inspect %>
+
+blank_foll_1:
+  <<: *DEFAULTS
+  twitter_id: 80192019
+  word_cloud: <%= ({}).to_yaml.inspect %>
+  
+blank_foll_2:
+  <<: *DEFAULTS
+  twitter_id: 7751092
+  word_cloud: <%= ({}).to_yaml.inspect %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161019225434) do
+ActiveRecord::Schema.define(version: 20161021050635) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -88,10 +88,11 @@ ActiveRecord::Schema.define(version: 20161019225434) do
   end
 
   create_table "graph_connections", force: :cascade do |t|
-    t.integer  "leader_id"
-    t.integer  "follower_id"
+    t.bigint   "leader_id"
+    t.bigint   "follower_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["follower_id"], name: "index_graph_connections_on_follower_id", using: :btree
     t.index ["leader_id"], name: "index_leader_id_on_profile_followers", using: :btree
   end
 
@@ -187,6 +188,7 @@ ActiveRecord::Schema.define(version: 20161019225434) do
     t.integer  "user_id"
     t.text     "word_cloud"
     t.boolean  "protected"
+    t.string   "display_name"
     t.index ["last_tweet_time"], name: "index_twitter_profiles_on_last_tweet_time", using: :btree
     t.index ["twitter_id"], name: "index_twitter_profiles_on_twitter_id", using: :btree
     t.index ["user_id"], name: "index_twitter_profiles_on_user_id", unique: true, using: :btree

@@ -7,7 +7,7 @@
     - if @user_has_profile.present?
       = form_tag twitter_twitter_call_path do
         = hidden_field_tag :your, 1
-        = text_field_tag :handle, @user_handle, autofocus: true, id: 'twitter-handle'
+        = text_field_tag :handle, @user_handle, autofocus: true, id: 'twitter-handle', class: 'form-control'
         = submit_tag "Get your bio", class: 'btn btn-default'
         = submit_tag "Get your older tweets", class: 'btn btn-default'
         = submit_tag "Populate your followers", class: 'btn btn-default', id: 'populate-followers'
@@ -20,7 +20,7 @@
       
 .paragraph
   = form_tag twitter_twitter_call_path do
-    = text_field_tag :handle, '', autofocus: true, id: 'twitter-handle'
+    = text_field_tag :handle, '', autofocus: true, id: 'twitter-handle', class: 'form-control'
     = submit_tag "Get bio", class: 'btn btn-default'
     = submit_tag "Get older tweets", class: 'btn btn-default'
     = submit_tag "Populate followers", class: 'btn btn-default', id: 'populate-followers'
@@ -30,9 +30,17 @@
 .topborder
   %h3
     To-Do List of Tasks
-  %ol
-    = form_tag twitter_batch_call_path do
-      - if @uncrawled_profiles != 0
+  = form_tag twitter_batch_call_path do
+    - if @uncrawled_profiles != 0
+      %ol.paragraph
         %li 
           = "#{@no_tweet_profiles} profiles do not have tweets"
-          = submit_tag "Process them!", name: 'no-tweet-profiles', class: 'btn btn-default', id: 'no-tweet-profiles'
+          
+      .paragraph
+        = submit_tag "Process all!", name: 'no-tweet-profiles', class: 'btn btn-default', id: 'no-tweet-profiles'
+      .paragraph
+        Process by leader:
+        = text_field_tag :leader_handle, @user_handle, class: 'form-control'
+        = submit_tag 'Get bios', name: 'bio-by-leader', class: 'btn btn-default'
+        = submit_tag 'Get tweets', name: 'tweets-by-leader', class: 'btn btn-default'
+        = submit_tag 'Get both', name: 'all-by-leader', class: 'btn btn-default'

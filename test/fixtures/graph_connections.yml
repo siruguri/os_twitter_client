@@ -10,3 +10,11 @@ gc_recent_leader__user_with_profile:
 gc_existing_follower_foll1:
   leader: existing_followers
   follower: just_follower_1
+  
+gc_blank_folls_1:
+  leader: ld_blank_folls
+  follower: blank_foll_1
+
+gc_blank_folls_2:
+  leader: ld_blank_folls
+  follower: blank_foll_2

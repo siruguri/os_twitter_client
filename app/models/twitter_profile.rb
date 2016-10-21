@@ -27,9 +27,24 @@ class TwitterProfile < ActiveRecord::Base
   def crawled_web_documents
     @docs ||=  WebArticle.where('web_articles.body is not null and twitter_profile_id = ?', self.id)
   end
+
+  def process_followers(cmd, token)
+    # Return number of new jobs; nil if args are erroneous
+    return nil if !([:bios].include? cmd)
+
+    ctr = 0
+    case cmd
+    when :bios
+      self.followers.where('twitter_profiles.updated_at < ? or handle is null', Date.today - 4.months).find_each do |foll|
+        TwitterFetcherJob.perform_later foll, 'bio', token: token
+        ctr += 1
+      end
+    end
+
+    ctr
+  end
   
   private
-
   def create_stat
     # blank profile stat for later batch processing
     p = ProfileStat.new twitter_profile_id: self.id

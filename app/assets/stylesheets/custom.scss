@@ -93,6 +93,10 @@ input#token-input-tags-list {
     cursor: pointer;
 }
 
+input[type=text].form-control {
+  margin-bottom: 10px;
+}
+
 .form-element-row {
   margin-bottom: 10px;
 }

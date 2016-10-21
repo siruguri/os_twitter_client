@@ -107,11 +107,19 @@ class TwittersController < ApplicationController
 
   def batch_call
     @app_token = set_app_tokens
-    
-    if params["no-tweet-profiles"].present?
-      no_tweets_profiles_query.all.each do |profile|
-        bio profile
-        tweets profile
+    if (by_l_cmd = params.keys.select { |i| i =~ /by\-leader/ }.compact).size > 0
+      unless params[:leader_handle].nil? or (leader = TwitterProfile.find_by_handle(params[:leader_handle])).nil?
+        case by_l_cmd[0].downcase
+        when /bio.*by.*leader/
+          leader.process_followers :bios, @app_token
+        end
+      end
+    else
+      if params["no-tweet-profiles"].present?
+        no_tweets_profiles_query.all.each do |profile|
+          bio profile
+          tweets profile
+        end
       end
     end
     redirect_to twitter_input_handle_path
@@ -215,6 +223,9 @@ class TwittersController < ApplicationController
   end
   
   def no_tweets_profiles_query
+    # Don't bother with profiles that have been members in Twitter for more than 6 months;
+    # And which we didn't just create recently in our db
+    
     TwitterProfile.includes(:tweets).
       joins('left OUTER JOIN tweets ON tweets.twitter_id = twitter_profiles.twitter_id').where('tweets.id is null and protected =? and (twitter_profiles.created_at > ? or member_since > ?)', false, DateTime.now - 7.days, DateTime.now - 6.months)
   end
