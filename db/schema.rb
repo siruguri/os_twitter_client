@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161021050635) do
+ActiveRecord::Schema.define(version: 20161021175615) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -205,6 +205,7 @@ ActiveRecord::Schema.define(version: 20161021050635) do
     t.string   "request_for"
     t.string   "status_message"
     t.bigint   "prev_cursor"
+    t.jsonb    "request_process_data"
   end
 
   create_table "users", force: :cascade do |t|

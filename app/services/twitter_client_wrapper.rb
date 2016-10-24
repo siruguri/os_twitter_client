@@ -1,9 +1,23 @@
+require 'uri'
+require 'tweetstream'
+
 class TwitterClientWrapper
   attr_reader :client
   class TwitterClientArgumentException < Exception
   end
   def config
     @config ||= {}
+  end
+
+  def streaming_client!
+    TweetStream.configure do |config|
+      config.consumer_key    = Rails.application.secrets.twitter_consumer_key
+      config.consumer_secret = Rails.application.secrets.twitter_consumer_secret
+      config.oauth_token    = Rails.application.secrets.twitter_single_app_access_token
+      config.oauth_token_secret = Rails.application.secrets.twitter_single_app_access_token_secret
+    end
+    @streaming_client = TweetStream::Client.new
+    puts "Made streaming client"
   end
   
   def initialize(opts = {})
@@ -28,7 +42,27 @@ class TwitterClientWrapper
   def perform_now(handle_rec, command, opts)
     response = instance_eval("#{command}(handle_rec, opts)")    
   end
-    
+
+  def stream(opts = {})
+    self.streaming_client!
+    tries = 0
+    EM.run do
+      p = EM::PeriodicTimer.new(2) do
+        @streaming_client.track(opts[:q]) do |object, client|
+          puts "Try #{tries}"
+          if object.is_a?(Twitter::Tweet)
+            puts object.text
+          else
+            puts "object is a #{object.class}"
+          end
+          tries += 1
+          client.stop if tries > 5
+        end
+      end
+    end
+    puts "EM done"
+  end
+  
   def rate_limited(command = '', &block)
     curr_time = Time.now
     if config[:access_token].nil?
@@ -37,13 +71,17 @@ class TwitterClientWrapper
       tok = config[:access_token]
     end
       
-    ct = TwitterRequestRecord.where('created_at > ? and request_for = ?', curr_time - 1.minute, tok).count
-
+    @prev_reqs = TwitterRequestRecord.where('request_type = ? and created_at > ? and request_for = ?',
+                                            command, curr_time - 1.minute, tok).
+                 order(created_at: :asc)
+    ct = @prev_reqs.count
+    @last_req = TwitterRequestRecord.where('request_type = ? and request_for = ?', command, tok).order(created_at: :asc).
+                last
+    
     # Diff commands have different rate limits! Only followers is currently accounted for.
     if command == 'followers' && ct > 0 || ct >= 12
-      t = TwitterRequestRecord.last
-      t.ran_limit = true
-      t.save
+      @last_req.ran_limit = true
+      @last_req.save
 
       # Enforce max of 12 requests per minute = 180 per 15 min window
       sleep 60 unless Rails.env.test?
@@ -98,7 +136,6 @@ class TwitterClientWrapper
 
   def account_settings!(user_rec)
     # Don't run this method unless we have a user authenticating to Twitter
-
     return unless user_rec.class == User and config[:access_token].present?
 
     t = TwitterProfile.new(user: user_rec)
@@ -110,9 +147,10 @@ class TwitterClientWrapper
         prev.user = user_rec
         prev.save!
       rescue ActiveRecord::RecordNotUnique => e
-      # User can't claim a profile already claimed by someone else
-        rec = TwitterRequestRecord.last
-        rec.update_attributes status_message: rec.status_message + ": error: already claimed by #{user_rec.id}"
+        # User can't claim a profile already claimed by someone else
+        rec = payload[:db_rec]
+        rec.request_process_data.merge!({'messages' => {'errors' => ["already claimed by #{user_rec.id}"]}})
+        rec.save
       end
     else
       t.handle = payload[:data][:screen_name]
@@ -128,6 +166,27 @@ class TwitterClientWrapper
     payload = post(handle_rec, :tweet, opts)
   end
 
+  def search!(opts)
+    return unless opts[:q].present?
+    payload = get(nil, :search, opts)
+
+    cts = []
+    if payload[:data] != ''
+      payload[:data][:statuses].each do |tweet|
+        # For v1: only process tweets that had URLs attached to them
+        if (sz = tweet[:entities]&.try(:[], :urls)&.size) && sz > 0
+          cts << ({favorite: (tweet[:favorite_count]||0), retweet: (tweet[:retweet_count]||0), ref: tweet})
+        end
+      end
+    end
+
+    if cts.size > 0
+      cts.sort_by! { |p| p[:favorite] + p[:retweet] }
+      payload[:db_rec].request_process_data.merge!({winner: cts.last[:ref]})
+      payload[:db_rec].save
+    end
+  end
+  
   def fetch_status!(opts)
     # Returns a value that denotes whether the requested status was found (1), not found (0) or was
     # blocked (-1). This is used in case the job was started as a follow-up to a tweet that had a quoted
@@ -170,9 +229,8 @@ class TwitterClientWrapper
     cursor =
       if opts[:pagination] == true
         if opts[:cursor].blank?
-          last_req = TwitterRequestRecord.where(user: handle_rec, request_type: 'follower_ids').order(created_at: :desc).first
-          if last_req
-            last_req.cursor
+          if @last_req.present?
+            @last_req.cursor
           else
             -1
           end
@@ -183,7 +241,7 @@ class TwitterClientWrapper
         -1
       end
 
-    payload = get(handle_rec, :follower_ids, {cursor: cursor, count: 5000})
+    payload = get(handle_rec, :followers, {cursor: cursor, count: 5000})
     if payload[:data] != ''
       ts_id_pairs = TwitterProfile.where(twitter_id: payload[:data][:ids]).pluck(:id, :twitter_id)
       existing_twitter_ids = ts_id_pairs.map { |p| p[1]} 
@@ -221,13 +279,13 @@ class TwitterClientWrapper
   end
 
   def fetch_my_friends!(handle_rec)
-    unless (last_req = TwitterRequestRecord.where(user: handle_rec, request_type: 'following_ids')).empty?
-      cursor = last_req[0].cursor
+    unless @last_req.nil?
+      cursor = @last_req.cursor
     else
       cursor = -1
     end
     
-    payload = get(handle_rec, :following_ids, {cursor: cursor})
+    payload = get(handle_rec, :my_friends, {cursor: cursor})
     if payload[:data] != ''
       ts = TwitterProfile.where(twitter_id: payload[:data][:ids])
       friend_ids = handle_rec.friends.pluck :id
@@ -258,7 +316,7 @@ class TwitterClientWrapper
       return
     end
     
-    payload = get(handle_rec, :profile, {count: 100})
+    payload = get(handle_rec, :bio, {count: 100})
 
     if payload[:data] != ''
       handle_rec.handle ||= payload[:data][:screen_name]
@@ -387,12 +445,12 @@ class TwitterClientWrapper
     base_request(:post, handle_rec, command, opts)
   end
   
-  def base_request(method, handle_rec, command = :profile, opts = {})
-    return nil if (handle_rec.nil? and command != :fetch_status) or
+  def base_request(method, handle_rec, command = :bio, opts = {})
+    return nil if (handle_rec.nil? and !(command == :fetch_status or command == :search)) or
       (handle_rec.present? && (
          (handle_rec.user.nil? and command == :account_settings) or
          (handle_rec.handle.nil? and handle_rec.twitter_id.nil? and
-          [:follower_ids, :profile, :tweets, :following_ids].include? command)
+          [:followers, :bio, :tweets, :my_friends].include? command)
        ))
 
     unless handle_rec.nil?
@@ -404,11 +462,15 @@ class TwitterClientWrapper
     end
     
     case command
+    when :search
+      req_type = opts[:request_type] || opts[:result_type] || 'mixed'
+      q = URI.escape opts[:q]
+      req = Twitter::REST::Request.new @client, method, "/1.1/search/tweets.json?q=#{q}&result_type=#{req_type}&count=100"
     when :fetch_status
-      req = Twitter::REST::Request.new(@client, method, "/1.1/statuses/show/#{opts[:tweet_id]}.json")
+      req = Twitter::REST::Request.new @client, method, "/1.1/statuses/show/#{opts[:tweet_id]}.json"
     when :retweet
       return nil unless opts[:tweet_id]
-      req = Twitter::REST::Request.new(@client, method, "/1.1/statuses/retweet/#{opts[:tweet_id]}.json")
+      req = Twitter::REST::Request.new @client, method, "/1.1/statuses/retweet/#{opts[:tweet_id]}.json"
     when :tweet
       # Allows me to say text instead of status in my code if I want to
       real_opts = opts.clone
@@ -418,13 +480,13 @@ class TwitterClientWrapper
                                        twitter_pk_hash.merge(real_opts.select{ |k, v| k == :status}))
     when :account_settings
       req = Twitter::REST::Request.new(@client, method, "/1.1/account/settings.json")
-    when :follower_ids
+    when :followers
       req = Twitter::REST::Request.new(@client, method, "/1.1/followers/ids.json",
                                        twitter_pk_hash.merge(opts.select { |k, v| k == :cursor || k == :count}))
-    when :following_ids
+    when :my_friends
       req = Twitter::REST::Request.new(@client, method, "/1.1/friends/ids.json",
                                        twitter_pk_hash.merge(opts.select { |k, v| k == :cursor }))
-    when :profile
+    when :bio
       req = Twitter::REST::Request.new(@client, method, "/1.1/users/show.json", twitter_pk_hash)
     when :tweets
       whitelist = [:since_id, :tweet_mode]
@@ -462,22 +524,32 @@ class TwitterClientWrapper
       case command
       when :tweets
         cursor = body.blank? ? opts[:limit_id] : body.last[:id]
-      when :follower_ids
+      when :followers
         cursor = body[:next_cursor]
         prev_cursor = body[:previous_cursor]
+      when :search
+        puts "search response:"
       end
     end
 
+    payload_size =
+      if body.is_a?(Array)
+        body.size
+      elsif body == ''
+        0
+      else
+        body.keys.size
+      end
     c = TwitterRequestRecord.create request_type: command, prev_cursor: prev_cursor,
                                     cursor: cursor, status: errors.empty?,
                                     status_message: errors.empty? ? '' : errors[:errors],
-                                    request_for: config[:access_token],
+                                    request_for: config[:access_token], request_process_data: ({payload_size: payload_size}),
                                     handle: (command == :account_settings ? body[:screen_name] : handle_rec&.handle)
 
     if /not authorized/i.match c.status_message
       handle_rec.update_attributes protected: true
     end
     
-    {data: body}.merge errors
+    {data: body, db_rec: c}.merge errors
   end
 end

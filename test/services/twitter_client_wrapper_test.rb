@@ -9,6 +9,14 @@ class TwitterClientWrapperTest < ActiveSupport::TestCase
     @handle = twitter_profiles :twitter_profile_1
   end
 
+  test 'search works' do
+    @c.rate_limited do
+      search!({q: 'hello world'})
+    end
+
+    assert_equal 34, TwitterRequestRecord.last.request_process_data['winner']["retweet_count"]
+  end
+  
   test 'retweeting works' do
     h = @handle
     @c.rate_limited do
@@ -29,17 +37,19 @@ class TwitterClientWrapperTest < ActiveSupport::TestCase
       # That should have set off the rate limiting exactly once.
       assert_equal 1, TwitterRequestRecord.where('created_at >= ? and ran_limit = ?', now, true).count
     end
+    
     it 'works for followers at rate of 1/min' do
       now = Time.now
       (1..2).each do |t|
         h = @handle
         @c.rate_limited('followers') do
-          fetch_profile! h
+          fetch_followers! h
         end
       end
 
       # That should have set off the rate limiting exactly once.
-      assert_equal 1, TwitterRequestRecord.where('created_at >= ? and ran_limit = ?', now, true).count
+      assert_equal 1, TwitterRequestRecord.where('request_type = ? and created_at >= ? and ran_limit = ?',
+                                                 'followers', now, true).count
     end
   end    
 
@@ -93,11 +103,14 @@ class TwitterClientWrapperTest < ActiveSupport::TestCase
 
     it 'works with a previous request' do
       h = @handle
-      TwitterRequestRecord.create handle: h.handle, request_type: 'following_ids', cursor: 12345
+
+      # The upcoming request will be done by the Twitter app, not a Twitter user.
+      t = TwitterRequestRecord.create handle: h.handle, request_type: 'my_friends', cursor: 12345
+      t.update_attributes request_for: Rails.application.secrets.twitter_single_app_access_token
 
       # Get four, lose two
       assert_difference('GraphConnection.where(follower_id: @handle.id).count', 2) do
-        @c.rate_limited do
+        @c.rate_limited('my_friends') do
           fetch_my_friends! h
         end
       end

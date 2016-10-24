@@ -49,6 +49,7 @@ gem 'sinatra', :require => nil
 # Reddit scraping
 gem 'nokogiri'
 gem 'twitter'
+gem 'tweetstream'
 gem 'oauth'
 
 gem 'web-console', ">3.0", group: :development

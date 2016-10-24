@@ -89,7 +89,7 @@ tp_assign_to_2:
   <<: *DEFAULTS
   handle: assign_to_2_handle
   last_tweet_time: <%= DateTime.strptime("Tue Nov 03 12:17:04 +0000 2015", '%a %b %d %H:%M:%S %z %Y') %>
-  last_tweet: hello there 1 this will be assigned to user_2 in test
+  last_tweet: hello there 1 this will be assigned to user_2 in test which will fail because tp_1 is already assigned to user_2
   twitter_id: 123998
   word_cloud: <%= ({}).to_yaml.inspect %>
 

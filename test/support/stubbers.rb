@@ -39,6 +39,11 @@ def set_net_stubs
     with(headers: single_token_headers).
     to_return(status: 200, body: valid_twitter_response(:singletweet))
 
+  # Search
+  stub_request(:get, "https://api.twitter.com/1.1/search/tweets.json?count=100&q=hello%20world&result_type=mixed").
+    with(headers: single_token_headers).
+    to_return(status: 200, body: valid_twitter_response(:search))
+  
   # Tweets
   stub_request(:get, "https://api.twitter.com/1.1/statuses/user_timeline.json?count=200&exclude_replies=true&include_rts=true&screen_name=twitter_handle&since_id=567r&trim_user=0&tweet_mode=extended").
     with(headers: single_token_headers).

@@ -9,25 +9,26 @@ class TwitterFetcherJob < ActiveJob::Base
       end
     else
       TwitterClientWrapper.new(opts).rate_limited(command) do
-        case command
-        when 'fetch_status'
+        case command.to_sym
+        when :search
+          search! opts
+        when :fetch_status
           fetch_status! opts
-        when 'retweet'
+        when :retweet
           retweet! handle_rec, opts
           r = RetweetRecord.new tweet_id: opts[:tweet_id], user_id: handle_rec.user.id
           r.save
-        when 'tweet'
+        when :tweet
           tweet! handle_rec, opts
-        when 'followers'
+        when :followers
           # Will not paginate by default; pick cursor as a whitelisted option
           fetch_followers! handle_rec, cursor: opts[:cursor], pagination: (opts[:pagination] || false),
                            token: opts[:token]
-          # Schedule a job now to get bios of all followers
-        when 'my_friends'
+        when :my_friends
           fetch_my_friends! handle_rec
-        when 'bio'
+        when :bio
           fetch_profile! handle_rec
-        when 'tweets'
+        when :tweets
           if opts[:relative_id].nil?
             # The default behavior is to get the timeline that's more recent than the most recent tweet or that's older
             # than the oldest know tweets.

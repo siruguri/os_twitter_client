@@ -92,7 +92,7 @@ class TwittersController < ApplicationController
         latest_tokenhash.update_attributes(token: acc_token.token, secret: acc_token.secret)
 
         x = current_user
-        TwitterClientWrapper.new(token: latest_tokenhash).rate_limited do
+        TwitterClientWrapper.new(token: latest_tokenhash).rate_limited('account_settings') do
           account_settings! x
         end
 

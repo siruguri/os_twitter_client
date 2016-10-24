@@ -80,8 +80,9 @@ class TwitterFetcherJobTest < ActiveSupport::TestCase
       
       assert_equal 2, GraphConnection.where(leader: twitter_profiles(:twitter_profile_1)).count
 
-      assert_equal 1479414865424994218, TwitterRequestRecord.last.cursor
-      assert_equal "follower_ids", TwitterRequestRecord.last.request_type
+      t = TwitterRequestRecord.order(created_at: :desc).first
+      assert_equal 1479414865424994218, t.cursor
+      assert_equal "followers", t.request_type
     end
     
     it 'works without existing followers with pagination opt' do
@@ -92,6 +93,9 @@ class TwitterFetcherJobTest < ActiveSupport::TestCase
     end
     
     it 'works with existing followers with pagination' do
+      # set the token in the existing request record
+      t = TwitterRequestRecord.where(request_type: 'followers', cursor: 65065).last
+      t.update_attributes request_for: Rails.application.secrets.twitter_single_app_access_token
       assert_equal 1, GraphConnection.where(leader_id: twitter_profiles(:existing_followers).id,
                                             follower_id: twitter_profiles(:just_follower_1).id).count
 

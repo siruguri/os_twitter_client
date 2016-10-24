@@ -81,7 +81,7 @@ class TwittersControllerTest < ActionController::TestCase
       OAuth::Consumer.any_instance.stubs(:get_access_token).returns t
 
       get :set_twitter_token, params: {oauth_token: 'oauthtoken', oauth_verifier: 'oauth_verifier'}
-      assert_match /claim/, TwitterRequestRecord.last.status_message
+      assert_match /claim/, TwitterRequestRecord.last.request_process_data['messages']['errors'][0]
     end
 
     it 'works otherwise' do
