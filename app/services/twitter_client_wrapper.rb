@@ -321,7 +321,8 @@ class TwitterClientWrapper
     if payload[:data] != ''
       handle_rec.handle ||= payload[:data][:screen_name]
       handle_rec.twitter_id ||= payload[:data][:id]
-      
+
+      handle_rec.display_name = payload[:data][:name]
       handle_rec.bio = payload[:data][:description]
       handle_rec.location = payload[:data][:location]
       handle_rec.last_tweet = payload[:data][:status]

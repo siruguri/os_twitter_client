@@ -3,6 +3,7 @@ require 'simplecov'
 unless defined?(Spring)
   SimpleCov.start 'rails' do
     add_filter 'lib/tasks'
+    add_filter 'lib/scripts'
     add_filter 'vendor'
     add_filter 'config'
     add_filter 'bundle'
