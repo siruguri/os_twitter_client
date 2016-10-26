@@ -9,17 +9,6 @@ class TwitterClientWrapper
     @config ||= {}
   end
 
-  def streaming_client!
-    TweetStream.configure do |config|
-      config.consumer_key    = Rails.application.secrets.twitter_consumer_key
-      config.consumer_secret = Rails.application.secrets.twitter_consumer_secret
-      config.oauth_token    = Rails.application.secrets.twitter_single_app_access_token
-      config.oauth_token_secret = Rails.application.secrets.twitter_single_app_access_token_secret
-    end
-    @streaming_client = TweetStream::Client.new
-    puts "Made streaming client"
-  end
-  
   def initialize(opts = {})
     token_rec = opts[:token]
     
@@ -41,26 +30,6 @@ class TwitterClientWrapper
 
   def perform_now(handle_rec, command, opts)
     response = instance_eval("#{command}(handle_rec, opts)")    
-  end
-
-  def stream(opts = {})
-    self.streaming_client!
-    tries = 0
-    EM.run do
-      p = EM::PeriodicTimer.new(2) do
-        @streaming_client.track(opts[:q]) do |object, client|
-          puts "Try #{tries}"
-          if object.is_a?(Twitter::Tweet)
-            puts object.text
-          else
-            puts "object is a #{object.class}"
-          end
-          tries += 1
-          client.stop if tries > 5
-        end
-      end
-    end
-    puts "EM done"
   end
   
   def rate_limited(command = '', &block)
@@ -323,6 +292,7 @@ class TwitterClientWrapper
       handle_rec.twitter_id ||= payload[:data][:id]
       
       handle_rec.bio = payload[:data][:description]
+      handle_rec.display_name = payload[:data][:name]
       handle_rec.location = payload[:data][:location]
       handle_rec.last_tweet = payload[:data][:status]
       unless payload[:data][:status].nil?
