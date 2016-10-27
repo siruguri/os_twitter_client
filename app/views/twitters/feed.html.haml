@@ -32,8 +32,7 @@
     - @feed_list.each do |tweet|
       %ul.item{id: "tweet-#{tweet.tweet_id}", 'data-action-data' => tweet.tweet_id, 'data-overlay-div-class' => 'retweet-ui', "data-handle" => tweet.user.handle}
         .line-one
-          .handle
-            = link_to tweet.user.handle, 'https://twitter.com/' + tweet.user.handle
+          = render partial: 'handle_template', locals: {tweet_handle: tweet.user.handle, tweet_id: tweet.user.twitter_id}
           .time
             = better_time(tweet)
           .action-button.nonicon#retweet-dialog
@@ -43,9 +42,9 @@
         - if tweet.is_retweeted
           - rt_handle = (tweet.tweet_details['retweeted_status']['user']['screen_name'] || tweet.tweet_details['entities']['user_mentions'][0]['screen_name'])
           .line-one
-            .handle
-              = "\u21b3"
-              = link_to rt_handle , 'https://twitter.com/' + rt_handle
+            = precede "\u21b3" do
+              = render partial: 'handle_template', locals: {tweet_handle: rt_handle, tweet_id: nil}
+
             .time
               = better_time(tweet)
           .mesg
