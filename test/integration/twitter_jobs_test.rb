@@ -4,14 +4,15 @@ class TwitterJobsTest < Capybara::Rails::TestCase
   include ActiveJob::TestHelper
 
   def setup
-    Capybara.current_driver = :rack_test
+    Capybara.default_driver = :webkit
     visit '/twitter/input_handle'
   end
   
   test 'Followers job can be started' do
     assert_enqueued_with(job: TwitterFetcherJob) do
-      fill_in 'twitter-handle', with: 'bobcostas'
-      click_button 'Populate followers'
+      fill_in 'handle', with: 'bobcostas'
+      click_button 'Refresh followers'
+      sleep 1
     end
 
     assert_equal 'bobcostas', GlobalID::Locator.locate(enqueued_jobs[0][:args][0]['_aj_globalid']).handle
@@ -20,6 +21,7 @@ class TwitterJobsTest < Capybara::Rails::TestCase
   test 'uncrawled profiles processing can be started' do
     assert_enqueued_with(job: TwitterFetcherJob) do
       click_button 'no-tweet-profiles'
+      sleep 1
     end
 
     # Twice as many twitter_profiles that don't have tweets - right now, 7

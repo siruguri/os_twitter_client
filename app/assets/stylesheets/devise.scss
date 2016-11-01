@@ -1,0 +1,25 @@
+/* Looks like Github */
+
+.new_user {
+  padding: 20px;
+  border: 2px solid #F0F1F2;
+  background-color: #FFF;
+  
+  label {
+    margin-bottom: 7px;
+  }
+
+
+  .btn {
+    font-weight: bold;
+    margin-top: 20px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    background-image: linear-gradient(#4183d7, #80ACE4);
+    font-size: 1.05em;
+    color: #FCFCFC;
+    vertical-align: middle;
+  }
+  
+}

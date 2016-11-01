@@ -39,13 +39,8 @@ input#token-input-tags-list {
   margin-bottom: 10px;
 }
 
-.bottomborder {
-  padding-bottom: 5px;
-  border-bottom: solid 1px green;
-}
-
 .paragraph {
-  margin-bottom: 10px;
+  margin-bottom: 35px;
   display: block;
 }
 
@@ -54,7 +49,15 @@ input#token-input-tags-list {
 }
 
 .btn {
-  background-color: lightgreen;
+  display: inline-block;
+
+  text-align: center;
+  background-color: #e0e4e8;
+  
+  &:hover {
+    background-image: linear-gradient(#889aa6, #e0e4e8);
+  }
+  color: #000;
 }
 
 .tagbox {
@@ -135,4 +138,17 @@ input[type=text].form-control {
     height: 50px;
     border: solid 1px gray;
   }
+}
+
+.to-left {
+  float: left;
+}
+
+.to-right {
+  float: right;
+}
+
+.auth-form-footer {
+  margin-top: 10px;
+  font-size: 0.8em;
 }
