@@ -89,7 +89,7 @@ button.urgent {
   .item {
     &.disabled {
       .line-one {
-	.action-button {
+	#retweet-dialog {
 	  color: $general-green;
 	  cursor: inherit;
 	}

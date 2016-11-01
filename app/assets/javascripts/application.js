@@ -25,3 +25,5 @@
 //= require backbone_rails_sync
 //= require backbone_datalink
 //= require backbone/track_status
+//= require twitter_dashboard
+//= require analysis

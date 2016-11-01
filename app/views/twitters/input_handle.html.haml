@@ -2,45 +2,49 @@
   .paragraph.bottomborder
     = @notice
     
-.paragraph.bottomborder
-  - if current_user
-    - if @user_has_profile.present?
-      = form_tag twitter_twitter_call_path do
-        = hidden_field_tag :your, 1
-        = text_field_tag :handle, @user_handle, autofocus: true, id: 'twitter-handle', class: 'form-control'
-        = submit_tag "Get your bio", class: 'btn btn-default'
-        = submit_tag "Get your older tweets", class: 'btn btn-default'
-        = submit_tag "Populate your followers", class: 'btn btn-default', id: 'populate-followers'
-        = submit_tag "Refresh whom you follow", class: 'btn btn-default', id: 'refresh-friends'
-        = submit_tag "Refresh your feed", class: 'btn btn-default', id: 'refresh-feed'
-    - else
-      You haven't registered your Twitter handle yet.
-      = link_to "Authorize with Twitter", twitter_authorize_twitter_url
-      to do so.
-      
-.paragraph
-  = form_tag twitter_twitter_call_path do
-    = text_field_tag :handle, '', autofocus: true, id: 'twitter-handle', class: 'form-control'
-    = submit_tag "Get bio", class: 'btn btn-default'
-    = submit_tag "Get older tweets", class: 'btn btn-default'
-    = submit_tag "Populate followers", class: 'btn btn-default', id: 'populate-followers'
+= form_tag twitter_twitter_call_path, id: 'dashboard-form-1' do
+  = hidden_field_tag :action_name, ''
+  
+  .paragraph.dashboard-section
+    .dashboard-title
+      Fetch Data
+    = text_field_tag :handle, (flash[:last_used_handle] || @user_handle), autofocus: true, id: 'twitter-handle', class: 'form-control'
+    %button.btn.btn-default.dashboard-action{'data-action-name' =>'get-bio'}
+      Get bio
+    %button.btn.btn-default.dashboard-action{'data-action-name' =>'get-older-tweets'}
+      Get older tweets
+    %button.btn.btn-default.dashboard-action{'data-action-name' =>'get-newer-tweets'}
+      Get newer tweets
+    %button.btn.btn-default.dashboard-action{'data-action-name' => 'populate-followers'}
+      Refresh followers
+  - if current_user    
+    .paragraph.dashboard-section
+      .dashboard-title
+        Your Profile
+      - if @user_has_profile
+        %button.btn.btn-default.dashboard-action{'data-action-name' => 'refresh-friends'}
+          Refresh whom you follow
+        %button.btn.btn-default.dashboard-action{'data-action-name' => 'refresh-feed'}
+          Refresh your feed
+      - else
+        You haven't registered your Twitter handle yet.
+        = link_to "Authorize with Twitter", twitter_authorize_twitter_url
+        to do so.
 
-.paragraph
-  = link_to "See index", twitter_index_url
-.topborder
-  %h3
-    To-Do List of Tasks
+.paragraph.dashboard-section
+  .dashboard-title
+    Power Users
   = form_tag twitter_batch_call_path do
     - if @uncrawled_profiles != 0
       %ol.paragraph
+        %li
+          = link_to "Search your biotags", analyses_search_path
         %li 
           = "#{@no_tweet_profiles} profiles do not have tweets"
-          
-      .paragraph
-        = submit_tag "Process all!", name: 'no-tweet-profiles', class: 'btn btn-default', id: 'no-tweet-profiles'
-      .paragraph
-        Process by leader:
-        = text_field_tag :leader_handle, @user_handle, class: 'form-control'
-        = submit_tag 'Get bios', name: 'bio-by-leader', class: 'btn btn-default'
-        = submit_tag 'Get tweets', name: 'tweets-by-leader', class: 'btn btn-default'
-        = submit_tag 'Get both', name: 'all-by-leader', class: 'btn btn-default'
+          = submit_tag "Process all!", name: 'no-tweet-profiles', class: 'btn btn-default', id: 'no-tweet-profiles'
+        %li
+          Process by leader:
+          = text_field_tag :leader_handle, @user_handle, class: 'form-control mini-textfield'
+          = submit_tag 'Get bios', name: 'bio-by-leader', class: 'btn btn-default'
+          = submit_tag 'Get tweets', name: 'tweets-by-leader', class: 'btn btn-default'
+          = submit_tag 'Get both', name: 'all-by-leader', class: 'btn btn-default'

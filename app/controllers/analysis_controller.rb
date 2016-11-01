@@ -1,4 +1,10 @@
 class AnalysisController < ApplicationController
+  before_action :authenticate_user!
+
+  def search
+    # Bio tag search
+  end
+  
   def task_page
   end
   

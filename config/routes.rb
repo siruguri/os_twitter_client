@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   scope :document_analyses, controller: 'analysis', as: 'analyses' do
     get :task_page
+    get :search
     post :execute_task
   end
 

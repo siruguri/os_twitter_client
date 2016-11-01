@@ -11,7 +11,7 @@ class UserLoginTest < Capybara::Rails::TestCase
     page.fill_in  'user[email]', with: users(:user_2).email
     page.fill_in  'user[password]', with: 'password'
     
-    page.click_on 'Log in'
+    page.click_on 'Login'
     assert_equal twitter_input_handle_path, page.current_path
   end
 end

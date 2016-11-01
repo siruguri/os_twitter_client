@@ -42,13 +42,13 @@ twitter_feed_functions = ->
   ids = page_tweet_id_list.map (e, i) ->
     $(e).data('action-data')
   unless ids.length == 0
-    curr_status = $.get('/ajax_api?payload=actions/execute/3/' + JSON.stringify(ids),
-      (d, s, x) ->
-        if d.data.length > 0
-          page_tweet_id_list.forEach (e, i) ->
-            if d.data.includes(parseInt($(e).data('action-data')))
-              $(e).addClass 'disabled'
-    )
+    d = JSON.stringify(ids)
+    promise = window.AjaxShim.run_action 3, d, null
+    promise.always ->
+      if window.AjaxShim.last_known_response.data != null
+        page_tweet_id_list.forEach (e, i) ->
+          if window.AjaxShim.last_known_response.data.includes(parseInt($(e).data('action-data')))
+            $(e).addClass 'disabled'
 
   # Show blown up images
   $('.tweet-media img').click (evt) ->

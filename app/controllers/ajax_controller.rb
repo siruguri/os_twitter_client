@@ -13,7 +13,7 @@ class AjaxController < ApplicationController
 
       status_struct.delete :code
       render json: status_struct.merge({request: params[:payload]}),
-             status_code: code,
+             status: code,
              layout: nil
     else
       render json: {}, layout: nil

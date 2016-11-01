@@ -2,6 +2,27 @@ require 'test_helper'
 
 class AnalysisControllerTest < ActionController::TestCase
   include ActiveJob::TestHelper
+  include Devise::Test::ControllerHelpers
+
+  def setup
+    sign_in users(:user_1)
+  end
+  
+  test 'requires sign in' do
+    sign_out :user
+    get :task_page
+    assert_redirected_to new_user_session_path
+  end
+
+  test '#search' do
+    get :search
+    assert_template :search
+  end
+
+  test '#task_page' do
+    get :task_page
+    assert_template :task_page
+  end
   
   test 'routing works' do
     assert_routing({method: :post, path: "/document_analyses/execute_task"},

@@ -62,10 +62,10 @@ class TwittersControllerTest < ActionController::TestCase
   end
 
   test 'errors' do
-    post :twitter_call, params: {commit: 'Hack it', handle: twitter_profiles(:twitter_profile_1).handle}
+    post :twitter_call, params: {action_name: 'Hack it', handle: twitter_profiles(:twitter_profile_1).handle}
     assert_redirected_to twitter_input_handle_path
 
-    post :twitter_call, params: {commit: 'Hack it'}
+    post :twitter_call, params: {action_name: 'Hack it'}
     assert_equal 302, response.status
 
     post :twitter_call, params: {handle: twitter_profiles(:twitter_profile_1).handle}
@@ -141,12 +141,13 @@ class TwittersControllerTest < ActionController::TestCase
       sign_in users(:user_2)
       get :input_handle
       assert assigns(:user_has_profile)
+      assert_match users(:user_2).twitter_profile.handle, response.body
     end
   end
 
   test '#bio' do
     assert_enqueued_with(job: TwitterFetcherJob) do
-      post :twitter_call, params: {commit: 'Get bio', handle: twitter_profiles(:twitter_profile_1).handle}
+      post :twitter_call, params: {action_name: 'get-bio', handle: twitter_profiles(:twitter_profile_1).handle}
     end
 
     assert_redirected_to twitter_input_handle_path
@@ -154,19 +155,19 @@ class TwittersControllerTest < ActionController::TestCase
 
   test '#my_friends' do
     assert_enqueued_with(job: TwitterFetcherJob) do
-      post :twitter_call, params: {commit: 'whom follow', handle: twitter_profiles(:twitter_profile_1).handle}
+      post :twitter_call, params: {action_name: 'refresh-friends', handle: twitter_profiles(:twitter_profile_1).handle}
     end
 
     assert_redirected_to twitter_input_handle_path
   end
   
   test '#refresh_feed' do
-    post :twitter_call, params: {commit: 'refresh feed', handle: twitter_profiles(:twitter_profile_1).handle}
+    post :twitter_call, params: {action_name: 'refresh-feed', handle: twitter_profiles(:twitter_profile_1).handle}
     assert (enqueued_jobs.size == 0 or enqueued_jobs.select { |j| j[:job] == TwitterFetcherJob }.size == 0)
 
     sign_in users(:user_2) # users tp 1
     assert_enqueued_with(job: TwitterFetcherJob) do
-      post :twitter_call, params: {commit: 'refresh feed'}
+      post :twitter_call, params: {action_name: 'refresh-feed'}
     end
     # tp_1 has two friends, one tweeted 500 days ago though
     fetch_jobs = enqueued_jobs.select { |j| j[:job] == TwitterFetcherJob }
@@ -183,26 +184,26 @@ class TwittersControllerTest < ActionController::TestCase
 
       it 'uses access tokens' do
         perform_enqueued_jobs do
-          post :twitter_call, params: {commit: 'Get older tweets', handle: 'twitter_handle'}
+          post :twitter_call, params: {action_name: 'get-older-tweets', handle: 'twitter_handle'}
         end
       end
     end
 
     describe 'unauthenticated' do
       before do
-        sign_out users(:user_1)
+        sign_out :user
       end
 
       it 'uses single app access tokens' do
         assert_difference('Tweet.count', 3) do
           perform_enqueued_jobs do
-            post :twitter_call, params: {commit: 'Get older tweets', handle: 'twitter_handle'}
+            post :twitter_call, params: {action_name: 'get-older-tweets', handle: 'twitter_handle'}
           end
         end
 
         perform_enqueued_jobs do
-          post :twitter_call, params: {commit: 'Get newer tweets', handle: 'twitter_handle'}
-        end
+          post :twitter_call, params: {action_name: 'get-newer-tweets', handle: 'twitter_handle'}
+        end        
 
         # Look in fixture file
         assert_equal 1111911239413, Tweet.last.tweet_id

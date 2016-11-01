@@ -126,34 +126,36 @@ class TwittersController < ApplicationController
   end
   
   def twitter_call
-    if params[:commit]
+    actname = params[:action_name]
+    
+    if actname && is_valid_batch_command?(actname)
       @app_token = set_app_tokens
-
-      case params[:commit].downcase
-      when /refresh.*feed/i
+      case actname.downcase
+      when 'refresh-feed'
         if current_user
           # Can't refresh feed if no one's logged in
           @notice = TwitterManagement::Feed.refresh_feed(@bio, @app_token).join '; '
         end
-      when /whom.*follow/i
+      when 'refresh-friends'
         my_friends      
-      when /populate.*followers/
+      when 'populate-followers'
         followers
-      when /get.*bio/
+      when 'get-bio'
         bio @bio
-      when /get.*older tweets/
+      when 'get-older-tweets', 'get-all-older-tweets'
         # Let's get the bio too, if we never did, when asking for tweets
         bio @bio if !@bio.member_since.present?
 
-        pagination = (params[:commit].downcase =~ /all.older/ ? {pagination: true} : {})
+        pagination = (actname == /get-all-older-tweets/ ? {pagination: true} : {})
         tweets(@bio, ({direction: 'older'}.merge(pagination)))
-      when /get newer tweets/
+      when 'get-newer-tweets'
         tweets(@bio, direction: 'newer')
       end
 
       unless @notice.blank?
         @notice = "Request returned: #{@notice}"
       end
+      flash[:last_used_handle] = @bio.handle
     else
       flash[:error] = 'Something went wrong.'
     end
@@ -214,7 +216,10 @@ class TwittersController < ApplicationController
 
   private
   def set_input_handle_path_vars
+    Rails.logger.debug(">>TEST: #{params.to_h}")
     @no_tweet_profiles = no_tweets_profiles_query.count
+    @user_handle = ''
+    
     if current_user&.latest_token_hash
       @user_has_profile = current_user.twitter_profile.present?
       # BUG: this handle might not be set by the account_settings job before this page is refreshed.
@@ -238,7 +243,7 @@ class TwittersController < ApplicationController
 
     # Set bio if it didn't come from the logged in user above.
     @bio ||= TwitterProfile.where('lower(handle) = ?', "#{params[:handle].downcase}").first
-    if @bio.nil? && params[:commit]=~/get bio/i
+    if @bio.nil? && params[:action_name] == 'get-bio'
       @bio = TwitterProfile.create handle: params[:handle].downcase
     end
     
@@ -282,4 +287,9 @@ class TwittersController < ApplicationController
 
     ret
   end
+
+  def is_valid_batch_command?(action)
+    ['get-bio', 'get-newer-tweets',
+     'get-older-tweets', 'populate-followers', 'refresh-friends', 'refresh-feed'].include?(action.downcase)
+  end 
 end
