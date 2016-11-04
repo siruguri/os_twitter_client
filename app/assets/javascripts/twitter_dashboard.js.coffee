@@ -1,4 +1,13 @@
 dashboard_functions = ->
+  $('#twitter-handle').keyup (evt) ->
+    if $(evt.target).val().length > 0
+      x = '/twitter/analysis/' + $(evt.target).val()      
+      $('.analysis-link a').text x
+      $('.analysis-link a').attr 'href', x
+      $('.analysis-link').show()
+    else
+      $('.analysis-link').hide()
+
   $('.dashboard-action').click (evt) ->
     evt.stopPropagation()
     evt.preventDefault()

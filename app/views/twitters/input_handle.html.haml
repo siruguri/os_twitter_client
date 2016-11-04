@@ -9,6 +9,8 @@
     .dashboard-title
       Fetch Data
     = text_field_tag :handle, (flash[:last_used_handle] || @user_handle), autofocus: true, id: 'twitter-handle', class: 'form-control'
+    .analysis-link
+      %a{href: ''}
     %button.btn.btn-default.dashboard-action{'data-action-name' =>'get-bio'}
       Get bio
     %button.btn.btn-default.dashboard-action{'data-action-name' =>'get-older-tweets'}
