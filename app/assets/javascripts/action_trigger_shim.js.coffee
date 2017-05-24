@@ -44,7 +44,7 @@ window.AjaxShim = new Object(
         tgt.addClass 'wtf' unless tgt == null
     )
 
-    console.log lkr    
+    console.log lkr.data
     promise
 )
 window.AjaxShim.bind_actions(window.AjaxShim)

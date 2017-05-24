@@ -11,10 +11,16 @@ dashboard_functions = ->
   $('.dashboard-action').click (evt) ->
     evt.stopPropagation()
     evt.preventDefault()
-
-    action = $(evt.target).data('action-name')
+    e = $(evt.target)
+    action = e.data 'action-name'
+    handle = e.data 'handle'
     if action != '' && action != null
-      $('#dashboard-form-1').find('input#action_name').val(action)
-      $('#dashboard-form-1').submit()
+      f = e.closest('form')
+      handle_field = f.find('#handle')
+      if handle_field.length == 1 and handle_field.val().trim() ==''
+        handle_field.val handle
+        
+      f.find('input#action_name').val action
+      f.submit()
       
 $(document).on('ready page:load', dashboard_functions)

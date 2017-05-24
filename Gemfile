@@ -20,7 +20,6 @@ gem 'sprockets'
 gem 'thin'
 
 gem 'devise'
-gem 'js-routes'
 gem 'will_paginate'
 gem 'mongoid',  git: 'https://github.com/mongodb/mongoid', tag: 'v6.0.0'
 gem 'pg'

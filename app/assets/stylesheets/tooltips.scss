@@ -1,0 +1,20 @@
+.tooltipper {
+  outline:none; 
+  strong { line-height:30px; }
+  &:hover { text-decoration:none; }
+  span.mesg-box {
+    z-index:10;
+    display:none; padding:14px 20px;
+    margin-top:-30px;
+    margin-left:128px;
+    width:300px;
+    line-height:20px;
+    border-radius:4px;
+    box-shadow: 5px 5px 8px #CCC;    
+  }
+  &:hover span.mesg-box {
+    display:inline; position:absolute; color:#111;
+    border:1px solid #DCA; background:#fffAF0;
+  }
+}
+

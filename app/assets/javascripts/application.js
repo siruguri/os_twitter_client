@@ -10,13 +10,12 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require js-routes
 //= require jquery
 //= require jquery_ujs
 //= require jquery-ui
 //= require bootstrap-sprockets
-//= require channel_post
 //= require action_trigger_shim
+//= require keyboard_trigger
 //= require twitter_index
 //= require twitter_feed
 //= require twitter_scheduler

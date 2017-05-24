@@ -3,6 +3,7 @@ module TwitterAnalysis
     # For doc analysis purposes, make two lists of original and retweeted tweets
 
     memo = {tweets_count: 0, orig_tweets_count: 0, all_doc: '', orig_doc: '', retweet_doc: ''}
+      
     tweets.each do |tweet|
       _h = ({'full_text' => tweet.full_text}).
            merge((tweet.retweeted_status === false) ? {} :
@@ -60,9 +61,9 @@ module TwitterAnalysis
     word_cloud = {}
     doc_sets = if use_mongo === false
       separated_docs tweets
-    else
-      separated_docs_mongo tweets
-    end
+               else
+                 separated_docs_mongo tweets
+               end
 
     o_dm = TextStats::DocumentModel.new(doc_sets[:orig_doc], twitter: true)
     a_dm = TextStats::DocumentModel.new(doc_sets[:all_doc], twitter: true)

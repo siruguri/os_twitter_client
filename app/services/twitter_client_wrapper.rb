@@ -210,7 +210,10 @@ class TwitterClientWrapper
         -1
       end
 
+    Rails.logger.debug 'running payload for followers'
     payload = get(handle_rec, :followers, {cursor: cursor, count: 5000})
+
+    Rails.logger.debug "response is #{payload[:data]}"
     if payload[:data] != ''
       ts_id_pairs = TwitterProfile.where(twitter_id: payload[:data][:ids]).pluck(:id, :twitter_id)
       existing_twitter_ids = ts_id_pairs.map { |p| p[1]} 
@@ -388,6 +391,9 @@ class TwitterClientWrapper
       end
 
       Tweet.import new_tweets, on_duplicate_key_ignore: true
+
+      # An ignored tweet in the import will have nil id, and therefore can't be serialized in ActiveJob
+      TweetTextCreateJob.perform_later(new_tweets.select { |r| r.id.present? })
       save_articles! all_web_articles, handle_rec
 
       # Paginate tweets but don't go crazy trying to fetch tweets for new profiles the first time
@@ -513,7 +519,10 @@ class TwitterClientWrapper
     c = TwitterRequestRecord.create request_type: command, prev_cursor: prev_cursor,
                                     cursor: cursor, status: errors.empty?,
                                     status_message: errors.empty? ? '' : errors[:errors],
-                                    request_for: config[:access_token], request_process_data: ({payload_size: payload_size}),
+                                    request_for: config[:access_token],
+                                    request_process_data: (
+                                      {payload_size: payload_size, options: opts.inspect}
+                                    ),
                                     handle: (command == :account_settings ? body[:screen_name] : handle_rec&.handle)
 
     if /not authorized/i.match c.status_message

@@ -1,4 +1,4 @@
-TwitterProfile.where('handle is not null').find_each do |tp|
+TwitterProfile.where('twitter_id in (?) and handle is not null', Tweet.pluck(:twitter_id)).find_each do |tp|
   puts "Running profile #{tp.handle}"
   tweet_count = 0
   idlist = tp.tweets.pluck :tweet_id

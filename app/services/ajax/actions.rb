@@ -40,8 +40,10 @@ module Ajax
           executed = true
         end
       when 4
-        q = opts[:data][0]
-        Response.update ({mesg: q, data: 'hello'})
+        q = opts[:data][0].strip.downcase
+
+        profiles = TwitterProfile.where('lower(bio) like ?', "%#{q}%")
+        Response.update ({mesg: q, data: "Matches #{profiles.count} profiles"})
         executed = true
       end
 

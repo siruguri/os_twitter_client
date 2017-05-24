@@ -62,15 +62,17 @@ class TwittersControllerTest < ActionController::TestCase
   end
 
   test 'errors' do
-    post :twitter_call, params: {action_name: 'Hack it', handle: twitter_profiles(:twitter_profile_1).handle}
-    assert_redirected_to twitter_input_handle_path
+    h = twitter_profiles(:twitter_profile_1).handle
+    post :twitter_call, params: {action_name: 'Hack it', handle: h}
+    assert_redirected_to twitter_profile_analysis_path(handle: h)
 
     post :twitter_call, params: {action_name: 'Hack it'}
     assert_equal 302, response.status
 
-    post :twitter_call, params: {handle: twitter_profiles(:twitter_profile_1).handle}
-    assert_redirected_to twitter_input_handle_path
-    assert_match /went.wrong/i, flash[:error]
+    h = twitter_profiles(:twitter_profile_1).handle
+    post :twitter_call, params: {handle: h}
+    assert_redirected_to twitter_profile_analysis_path(handle: h)
+    assert_match /went.wrong/i, flash[:alert]
   end
 
   describe '#set_twitter_token' do
@@ -146,23 +148,25 @@ class TwittersControllerTest < ActionController::TestCase
   end
 
   test '#bio' do
+    h = twitter_profiles(:twitter_profile_1).handle
     assert_enqueued_with(job: TwitterFetcherJob) do
-      post :twitter_call, params: {action_name: 'get-bio', handle: twitter_profiles(:twitter_profile_1).handle}
+      post :twitter_call, params: {action_name: 'get-bio', handle: h}
     end
-
-    assert_redirected_to twitter_input_handle_path
+    assert_redirected_to twitter_profile_analysis_path(handle: h)
   end
 
   test '#my_friends' do
-    assert_enqueued_with(job: TwitterFetcherJob) do
-      post :twitter_call, params: {action_name: 'refresh-friends', handle: twitter_profiles(:twitter_profile_1).handle}
+    h = twitter_profiles(:twitter_profile_1).handle
+    assert_enqueued_with(job: TwitterFetcherJob) do      
+      post :twitter_call, params: {action_name: 'refresh-friends', handle: h}
     end
 
-    assert_redirected_to twitter_input_handle_path
+    assert_redirected_to twitter_profile_analysis_path(handle: h)
   end
   
   test '#refresh_feed' do
-    post :twitter_call, params: {action_name: 'refresh-feed', handle: twitter_profiles(:twitter_profile_1).handle}
+    h = twitter_profiles(:twitter_profile_1).handle
+    post :twitter_call, params: {action_name: 'refresh-feed', handle: h}
     assert (enqueued_jobs.size == 0 or enqueued_jobs.select { |j| j[:job] == TwitterFetcherJob }.size == 0)
 
     sign_in users(:user_2) # users tp 1
@@ -173,7 +177,7 @@ class TwittersControllerTest < ActionController::TestCase
     fetch_jobs = enqueued_jobs.select { |j| j[:job] == TwitterFetcherJob }
     assert_equal 'user2@valid.com.twitter.bookmark', fetch_jobs[0][:args][2]['refresh_bookmark']
     assert_equal 1, fetch_jobs.size
-    assert_redirected_to twitter_input_handle_path
+    assert_redirected_to twitter_profile_analysis_path(handle: h)
   end
   
   describe 'getting tweets' do

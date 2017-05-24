@@ -13,10 +13,9 @@
       .twitter-biobox
         Num. followers: #{@bio.num_followers}
     = form_tag twitter_twitter_call_path, class: 'inline-block' do
+      = hidden_field_tag :action_name, ''
       = hidden_field_tag :handle, @bio.handle
-      = submit_tag "Get older tweets"
-      = submit_tag "Get all older tweets"
-      = submit_tag "Get newer tweets", class: (@been_a_while ? 'urgent' : '')
+      = render partial: 'profile_action_buttons', locals: {handle: @bio.handle}
     - if @latest_tweets && @latest_tweets.count > 0
       .paragraph
         #{@latest_tweets.count} tweets retrieved (from&nbsp;

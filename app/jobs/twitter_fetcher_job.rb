@@ -8,6 +8,7 @@ class TwitterFetcherJob < ActiveJob::Base
         TwitterFetcherJob.perform_later f, 'bio', opts
       end
     else
+      Rails.logger.debug ">>> starting command #{command} with opts #{opts.inspect}"      
       TwitterClientWrapper.new(opts).rate_limited(command) do
         case command.to_sym
         when :search
@@ -22,6 +23,7 @@ class TwitterFetcherJob < ActiveJob::Base
           tweet! handle_rec, opts
         when :followers
           # Will not paginate by default; pick cursor as a whitelisted option
+          Rails.logger.debug 'starting fetch followers'
           fetch_followers! handle_rec, cursor: opts[:cursor], pagination: (opts[:pagination] || false),
                            token: opts[:token]
         when :my_friends
@@ -29,6 +31,7 @@ class TwitterFetcherJob < ActiveJob::Base
         when :bio
           fetch_profile! handle_rec
         when :tweets
+          Rails.logger.debug ">>> Received opts #{opts.inspect}"
           if opts[:relative_id].nil?
             # The default behavior is to get the timeline that's more recent than the most recent tweet or that's older
             # than the oldest know tweets.

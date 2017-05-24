@@ -15,6 +15,13 @@ class TwitterProfile < ActiveRecord::Base
 
   after_create :create_stat
 
+  def self.with_no_tweets
+    # Don't bother with profiles that have been members in Twitter for more than 6 months;
+    # And which we didn't just create recently in our db
+    includes(:tweets).
+      joins('left OUTER JOIN tweets ON tweets.twitter_id = twitter_profiles.twitter_id').where('tweets.id is null and protected =? and (twitter_profiles.created_at > ? or member_since > ?)', false, DateTime.now - 7.days, DateTime.now - 6.months)
+  end
+    
   def webdocs_string
     str = '' 
     crawled_web_documents.find_each do |article|

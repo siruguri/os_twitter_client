@@ -9,6 +9,12 @@ Rails.application.routes.draw do
 
   post '/ajax_api' => 'ajax#multiplex'
   get '/ajax_api' => 'ajax#multiplex'
+
+  resources :notification_logs, only: [:index] do  
+    collection do
+      get :list
+    end
+  end
   
   scope :twitter, as: 'twitter', controller: 'twitters' do
     get :authorize_twitter

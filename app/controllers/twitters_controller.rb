@@ -116,7 +116,7 @@ class TwittersController < ApplicationController
       end
     else
       if params["no-tweet-profiles"].present?
-        no_tweets_profiles_query.all.each do |profile|
+        TwitterProfile.with_no_tweets.all.each do |profile|
           bio profile
           tweets profile
         end
@@ -126,40 +126,43 @@ class TwittersController < ApplicationController
   end
   
   def twitter_call
+    notice = nil
     actname = params[:action_name]
-    
     if actname && is_valid_batch_command?(actname)
       @app_token = set_app_tokens
       case actname.downcase
       when 'refresh-feed'
         if current_user
           # Can't refresh feed if no one's logged in
-          @notice = TwitterManagement::Feed.refresh_feed(@bio, @app_token).join '; '
+          notice = TwitterManagement::Feed.refresh_feed(@bio, @app_token).join '; '
         end
       when 'refresh-friends'
-        my_friends      
+        my_friends
+        notice = 'Started friends job'
       when 'populate-followers'
         followers
+        notice = 'Started followers job'
       when 'get-bio'
         bio @bio
+        notice = 'Started bio refresh job'
       when 'get-older-tweets', 'get-all-older-tweets'
         # Let's get the bio too, if we never did, when asking for tweets
         bio @bio if !@bio.member_since.present?
+        notice = 'Started older tweets job'
 
         pagination = (actname == /get-all-older-tweets/ ? {pagination: true} : {})
         tweets(@bio, ({direction: 'older'}.merge(pagination)))
       when 'get-newer-tweets'
         tweets(@bio, direction: 'newer')
+        notice = 'Started newer tweets job'
       end
 
-      unless @notice.blank?
-        @notice = "Request returned: #{@notice}"
-      end
+      flash[:notice] = "Request returned: #{notice}"
       flash[:last_used_handle] = @bio.handle
     else
-      flash[:error] = 'Something went wrong.'
+      flash[:alert] = 'No such action - something went wrong.'
     end
-    redirect_to twitter_input_handle_path
+    redirect_to twitter_profile_analysis_path(handle: @bio.handle)
   end
 
   def feed
@@ -216,8 +219,7 @@ class TwittersController < ApplicationController
 
   private
   def set_input_handle_path_vars
-    Rails.logger.debug(">>TEST: #{params.to_h}")
-    @no_tweet_profiles = no_tweets_profiles_query.count
+    @no_tweet_profiles_ct = TwitterProfile.with_no_tweets.count
     @user_handle = ''
     
     if current_user&.latest_token_hash
@@ -227,14 +229,6 @@ class TwittersController < ApplicationController
     end
   end
   
-  def no_tweets_profiles_query
-    # Don't bother with profiles that have been members in Twitter for more than 6 months;
-    # And which we didn't just create recently in our db
-    
-    TwitterProfile.includes(:tweets).
-      joins('left OUTER JOIN tweets ON tweets.twitter_id = twitter_profiles.twitter_id').where('tweets.id is null and protected =? and (twitter_profiles.created_at > ? or member_since > ?)', false, DateTime.now - 7.days, DateTime.now - 6.months)
-  end
-  
   def set_handle_or_return
     # Params overrides other behavior
     if params[:handle].nil? 
@@ -242,7 +236,7 @@ class TwittersController < ApplicationController
     end
 
     # Set bio if it didn't come from the logged in user above.
-    @bio ||= TwitterProfile.where('lower(handle) = ?', "#{params[:handle].downcase}").first
+    @bio ||= TwitterProfile.where('lower(handle) = ?', "#{params[:handle].strip.downcase}").first
     if @bio.nil? && params[:action_name] == 'get-bio'
       @bio = TwitterProfile.create handle: params[:handle].downcase
     end
@@ -271,6 +265,7 @@ class TwittersController < ApplicationController
     TwitterFetcherJob.perform_later t, 'bio', token: @app_token
   end
   def tweets(t, opts = {})
+    Rails.logger.debug ">>> starting tweets job with token #{@app_token}, opts #{opts}"      
     TwitterFetcherJob.perform_later t, 'tweets', ({token: @app_token}.merge(opts))
   end
 

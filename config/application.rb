@@ -24,5 +24,8 @@ module TrackStatus
 
     config.active_job.queue_adapter = :sidekiq
     config.middleware.insert(0, Rack::Deflater)
+    config.generators do |g|
+      g.orm :active_record
+    end
   end
 end
